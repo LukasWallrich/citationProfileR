@@ -13,7 +13,7 @@ parse_pdf_refs <- function(file) {
   # translate return from Raw to Characters
   output <- rawToChar(GROBID$content)
 
-  f_bib <- paste0("/Users/adrianabeltran/Desktop/Academics/Spring23/Capstone/citationProfileR/extractedCitations/Test", ".bib")
+  f_bib <- paste0("/Users/likamikhelashvili/Documents/Classes@Smith/SDS410/citationProfileR/extractedCitations/Test", ".bib")
   writeLines(output, f_bib)
 
   #if no references are fine return that
@@ -22,15 +22,13 @@ parse_pdf_refs <- function(file) {
     return(data.frame())
   }
 
-  res <- bib2df::bib2df(f_bib) %>%
-    collapse_to_string(where(is.list))
-
+  res <- bib2df::bib2df(f_bib)
   return(res)
 }
 
 #testers to run just the function on top
 #file <- "/Users/adrianabeltran/Downloads/brewerPaper.pdf"
-file <- "/Users/adrianabeltran/Downloads/practicing-moderation-community-moderation-as-reflective-practice (1).pdf"
+file <- "/Users/likamikhelashvili/Documents/Classes@Smith/thesis/Text/doleac_2017.pdf"
 output <- parse_pdf_refs(file)
 
 f_bib <- paste0("/Users/adrianabeltran/Downloads/CitationTest", ".bib"). #add .bib extension to file name (do not need file_path_blah since we are asking for it just for rn bc we do not have a shiny upload)
