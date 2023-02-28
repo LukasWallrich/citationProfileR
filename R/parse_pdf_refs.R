@@ -1,20 +1,35 @@
-library(tidyverse)
-library(httr)
-#giving 200 but content is returned in hexidecimal
-parse_pdf_refs <- function(file) {
+#' Parse PDF references
+#'
+#' Parse references in a PDF file using GROBID
+#'
+#' @param file path to the PDF file
+#' @param save_to_file path to the output file
+#' @param GROBID_URL GROBID URL
+#' @return dataframe with references
+#' @export
+#' @examples
+#' parse_pdf_refs("file.pdf")
+#' parse_pdf_refs("file.pdf", "file.bib")
+#' parse_pdf_refs("file.pdf", "file.bib", "https://kermitt2-grobid.hf.space")
+
+# original grobid URL gave 'temporary' 302 redirect to url below - so might need to revert to 'https://cloud.science-miner.com/grobid'
+parse_pdf_refs <- function(file, save_to_file = NULL, GROBID_URL = "https://kermitt2-grobid.hf.space") {
+
   #creating API url
-  GROBID_URL <- 'https://cloud.science-miner.com/grobid'
   api <- '/api/processReferences'
   api_url <- paste0(GROBID_URL, api)
 
   #input is required, API call to GROBID process Reference(https://grobid.readthedocs.io/en/latest/Grobid-service/)
-  GROBID <- httr::POST(api_url, accept("application/x-bibtex"),  body = list(input = upload_file(file)), encode = "multipart", verbose())
+  GROBID <- httr::POST(api_url, accept("application/x-bibtex"),  body = list(input = httr::upload_file(file)), encode = "multipart", verbose())
 
   # translate return from Raw to Characters
   output <- rawToChar(GROBID$content)
 
-  f_bib <- paste0("/Users/adrianabeltran/Desktop/Academics/Spring23/Capstone/citationProfileR/extractedCitations", ".bib")
-  writeLines(output, f_bib)
+  if (is.null(save_to_file)) {
+    save_to_file <- tempfile()
+  }
+
+  writeLines(output, save_to_file)
 
   #if no references are fine return that
   if (length(output) == 0 || (length(output) == 1 && output[1] == "")) {
@@ -22,12 +37,6 @@ parse_pdf_refs <- function(file) {
     return(data.frame())
   }
 
-  res <- bib2df::bib2df(f_bib)
+  res <- bib2df::bib2df(save_to_file)
   return(res)
 }
-
-#testers to run just the function on top
-#file <- "/Users/adrianabeltran/Downloads/brewerPaper.pdf"
-file <- "/Users/adrianabeltran/Downloads/practicing-moderation-community-moderation-as-reflective-practice (1).pdf"
-output <- parse_pdf_refs(file)
-
