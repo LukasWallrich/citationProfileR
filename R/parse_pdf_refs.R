@@ -25,13 +25,14 @@ parse_pdf_refs <- function(file, save_to_file = NULL, GROBID_URL = "https://kerm
   # translate return from Raw to Characters
   output <- rawToChar(GROBID$content)
 
+  #use temporary file if user does not want to save info
   if (is.null(save_to_file)) {
     save_to_file <- tempfile()
   }
 
   writeLines(output, save_to_file)
 
-  #if no references are fine return that
+  #if no references are found return message
   if (length(output) == 0 || (length(output) == 1 && output[1] == "")) {
     message("No references found for output" )
     return(data.frame())
