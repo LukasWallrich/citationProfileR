@@ -1,13 +1,24 @@
 Package: CitationProfileR
-Title: What the Package Does (One Line, Title Case)
+Title: Creates Diversity Statements for Academic Paper Citations
 Version: 0.0.0.9000
-Authors@R: 
-    person("First", "Last", , "first.last@example.com", role = c("aut", "cre"),
-           comment = c(ORCID = "YOUR-ORCID-ID"))
-Description: What the package does (one paragraph).
+Authors@R: c(
+    person("Adriana", "Beltran Andrade", , "abeltranandrade@smith.edu", role = c("aut", "cre"),
+           comment = c(ORCID = "YOUR-ORCID-ID")),
+    person("Rithika", "Devarakonda", , "rdevarakonda@smith.edu", role = c("aut", "cre"),
+           comment = c(ORCID = "YOUR-ORCID-ID")),
+    person("Lika", "Mikhelashvili", , "lmikhelashvili@smith.edu", role = c("aut", "cre"),
+           comment = c(ORCID = "YOUR-ORCID-ID")),
+    person("Mackie", "Zhou", , "mzhou@smith.edu", role = c("aut", "cre"),
+           comment = c(ORCID = "YOUR-ORCID-ID")),
+           )
+Description: The package will provide a user interface for academics to input their academic papers and receive a diversity statement with visualizations.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.3
 Imports: 
-    magrittr
+    magrittr,
+    httr
+Suggests: 
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3
