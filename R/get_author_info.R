@@ -24,6 +24,7 @@ get_author_info <-function(df){
   practice_author <- practice_author[1]
 
   #relevance/score is the score of the  match from the paper it returns
+  #add the year of publication
  info <- cr_works(flq = c(query.author = practice_author, query.bibliographic = practice_title), limit = 3,sort='relevance', select = c('DOI', 'title', 'author', 'created', 'published-print', 'published-online', 'publisher-location'))
 
  #data frame with info
