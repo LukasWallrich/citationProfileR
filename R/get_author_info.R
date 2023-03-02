@@ -9,26 +9,24 @@ library(rcrossref)
 #'
 #' @examples
 get_author_info <-function(df){
+  # tester data and selecting important things
   df <- read_csv("R/test_citations_table.csv")
-
   df <- df %>%
     select(AUTHOR, TITLE, DATE, YEAR)
 
-
+  #practice examples
   practice_author <- df$AUTHOR[6]
   practice_title <- df$TITLE[6]
   practice_date <- df$DATE[6]
 
+  # splitting the last name and initial to get only last name
   practice_author <- strsplit(practice_author, split = ",")[[1]] #https://www.programmingr.com/tutorial/how-to-use-strsplit-in-r/ (list in list problem)
   practice_author <- practice_author[1]
 
- info <- cr_works(flq = c(query.author = practice_author, query.bibliographic = practice_title))
+  #relevance/score is the score of the  match from the paper it returns
+ info <- cr_works(flq = c(query.author = practice_author, query.bibliographic = practice_title), limit = 3,sort='relevance', select = c('DOI', 'title', 'author', 'created', 'published-print', 'published-online', 'publisher-location'))
 
- res_json <- cr_works_(flq = c(query.author = practice_author, query.bibliographic = practice_title))
- unname(vapply(res_json, class, ""))
- lol <- jsonlite::fromJSON(res_json[[1]])
-
- hehe <- info[[data]]
-
+ #data frame with info
+  data_returned <- info$data
 }
 
