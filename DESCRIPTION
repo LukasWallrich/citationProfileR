@@ -13,5 +13,6 @@ Imports:
     magrittr,
     httr,
     jsonlite,
-    readr
+    readr,
+    testthat
     
