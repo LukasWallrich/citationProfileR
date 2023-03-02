@@ -164,6 +164,8 @@ lookupNameVectorGenderize("Jamie")
 
 
 ```{r}
-guessGender(c("Natalie", "Liam", "Eamon"), countryCode = "FR")
+g <- guessGender(c("Natalie", "Liam", "Eamon"), countryCode = "FR")
+ncol(g)
+g
 ```
 
