@@ -5,6 +5,7 @@
 library(httr)
 library(jsonlite)
 library(readr)
+library(dplyr)
 ```
 
 
@@ -153,7 +154,10 @@ guessGender <- function(nameVector,
     }
   }
 
-  return(do.call(rbind, responseList))
+  final_output <- responseDF %>%
+    select("name", "gender", "country_id", "probability")
+  
+  return(final_output)
 }
 ```
 
@@ -167,5 +171,32 @@ lookupNameVectorGenderize("Jamie")
 g <- guessGender(c("Natalie", "Liam", "Eamon"), countryCode = "FR")
 ncol(g)
 g
+```
+```{r}
+#g[4]
+
+#for (i in g[4]) {
+  #expect_true(i <= 1 && i >= 0)
+#}
+
+df = c("Natalie", "Liam", "Eamon")
+cr_code = "FR"
+
+refs <- guessGender(df, countryCode = cr_code)
+
+#refs[4]
+
+#for (i in refs[4])
+#{
+  #if (i >= 0 & i <= 1) {
+    #print(1)
+  #}
+#}
+
+is.character(refs[2])
+is.numeric(refs[4])
+
+typeof(refs[2])
+
 ```
 

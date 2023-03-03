@@ -14,5 +14,6 @@ Imports:
     httr,
     jsonlite,
     readr,
-    testthat
+    testthat,
+    dplyr
     

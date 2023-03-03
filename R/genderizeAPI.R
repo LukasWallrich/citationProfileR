@@ -139,12 +139,15 @@ guessGender <- function(nameVector,
     }
   }
 
-  return(do.call(rbind, responseList))
+  final_output <- responseDF %>%
+    dplyr::select("name", "gender", "country_id", "probability")
+
+  return(final_output)
 }
 
 
-lookupNameVectorGenderize("Jamie")
+#lookupNameVectorGenderize("Jamie")
 
-guessGender(c("Natalie", "Liam", "Eamon"), countryCode = "FR")
+#guessGender(c("Natalie", "Liam", "Eamon"), countryCode = "FR")
 
 
