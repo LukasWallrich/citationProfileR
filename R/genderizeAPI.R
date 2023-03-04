@@ -1,14 +1,9 @@
 # the following code copied from
 # https://github.com/coccopuffs/GenderGuesser/blob/master/data-raw/getCountryAndLanguageCodes.R
-
-#library(httr)
-#library(jsonlite)
-#library(readr)
+# and
+# https://github.com/coccopuffs/GenderGuesser/blob/master/R/guessGender.R
 
 genderizeCountries <- readr::read_csv("country_codes.csv", show_col_types = FALSE)$"Code"
-
-# the following code copied from
-# https://github.com/coccopuffs/GenderGuesser/blob/master/R/guessGender.R
 
 # Code for using the genderize.io API to guess names' genders.
 
@@ -144,10 +139,3 @@ guessGender <- function(nameVector,
 
   return(final_output)
 }
-
-
-#lookupNameVectorGenderize("Jamie")
-
-#guessGender(c("Natalie", "Liam", "Eamon"), countryCode = "FR")
-
-
