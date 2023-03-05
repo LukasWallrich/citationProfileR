@@ -24,8 +24,8 @@ get_author_info <-function(df){
   practice_author <- practice_author[1]
 
   #relevance/score is the score of the  match from the paper it returns
- #info <- rcrossref::cr_works(flq = c(query.author = practice_author, query.bibliographic = practice_title), limit = 3,sort='relevance', select = c('DOI', 'title', 'author', 'created', 'published-print', 'published-online', 'publisher-location'))
-  info2 <- rcrossref::cr_works(flq = c(query.author = practice_author, query.bibliographic = practice_title), limit = 3,sort='relevance')
+  #add the year of publication
+ info <- rcrossref::cr_works(flq = c(query.author = practice_author, query.bibliographic = practice_title), limit = 3,sort='relevance', select = c('DOI', 'title', 'author', 'created', 'published-print', 'published-online', 'publisher-location'))
 
  #data frame with info
   data_returned <- info$data
