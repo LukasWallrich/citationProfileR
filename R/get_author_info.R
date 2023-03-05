@@ -2,7 +2,7 @@ library(rcrossref)
 
 #' get_author_info
 #'
-#' @param df: data frame containing author, title and date
+#' @param df data frame containing author, title and date
 #'
 #' @return dataframe with the first and last name of the cited authors
 #' @export
@@ -10,9 +10,9 @@ library(rcrossref)
 #' @examples
 get_author_info <-function(df){
   # tester data and selecting important things
-  df <- read_csv("R/test_citations_table.csv")
+  df <- readr::read_csv("R/test_citations_table.csv")
   df <- df %>%
-    select(AUTHOR, TITLE, DATE, YEAR)
+    dplyr::select('AUTHOR', 'TITLE', 'DATE', 'YEAR')
 
   #practice examples
   practice_author <- df$AUTHOR[6]
@@ -24,9 +24,9 @@ get_author_info <-function(df){
   practice_author <- practice_author[1]
 
   #relevance/score is the score of the  match from the paper it returns
- info <- cr_works(flq = c(query.author = practice_author, query.bibliographic = practice_title), limit = 3,sort='relevance', select = c('DOI', 'title', 'author', 'created', 'published-print', 'published-online', 'publisher-location'))
+ #info <- rcrossref::cr_works(flq = c(query.author = practice_author, query.bibliographic = practice_title), limit = 3,sort='relevance', select = c('DOI', 'title', 'author', 'created', 'published-print', 'published-online', 'publisher-location'))
+  info2 <- rcrossref::cr_works(flq = c(query.author = practice_author, query.bibliographic = practice_title), limit = 3,sort='relevance')
 
  #data frame with info
   data_returned <- info$data
 }
-
