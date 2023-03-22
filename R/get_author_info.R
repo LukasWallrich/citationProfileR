@@ -26,26 +26,33 @@ get_author_info <-function(df){
 info_dois <- rcrossref::cr_works(dois = pull(list_doi, DOI))
 
 #practice test cases for papers that have no DOI present
-only_title <- na_list_doi$TITLE[12]
-only_title_author <- na_list_doi$AUTHOR[12]
-only_author <- na_list_doi$AUTHOR[7]
-only_author_title <- na_list_doi$TITLE[7]
+no_author_title <- na_list_doi$TITLE[12]
+no_author_author <- na_list_doi$AUTHOR[12]
+no_title_author <- na_list_doi$AUTHOR[7]
+no_title_title <- na_list_doi$TITLE[7]
 
 # splitting the last name and initial to get only last name
-only_author <- strsplit(only_author, split = ",") #https://www.programmingr.com/tutorial/how-to-use-strsplit-in-r/ (list in list problem)
-practice_author <- matrix(unlist(practice_author),ncol=2,byrow=T)
-only_last_name <- only_author[1, 1]
-only_initial <- only_author[1,2]
+no_title_author <- strsplit(no_title_author, split = ", ") #https://www.programmingr.com/tutorial/how-to-use-strsplit-in-r/ (list in list problem)
+practice_author <- matrix(unlist(no_title_author),ncol=2,byrow=T)
+only_last_name <- practice_author[1, 1]
+only_initial <- practice_author[1,2]
 
 #test cases for the different available author/title info for each paper
-test_na_doi <-   if (!is.na(only_author) & !is.na(only_author_title)){
-    rcrossref::cr_works(flq = c(query.author = only_title_author, query.bibliographic = only_author_title), limit = 1,sort='relevance', select = c('DOI', 'title', 'author', 'created', 'published-print', 'published-online', 'publisher-location'))
-  } else if(!is.na(only_author_title) & is.na(only_author)){
-    rcrossref::cr_works(flq = c(query.bibliographic = only_author_title), limit = 1,sort='relevance', select = c('DOI', 'title', 'author', 'created', 'published-print', 'published-online', 'publisher-location'))
-  } else if(is.na(only_author_title) & !is.na(only_author)){
-    rcrossref::cr_works(flq = c(query.author = only_last_name), limit = 1,sort='relevance', select = c('DOI', 'title', 'author', 'created', 'published-print', 'published-online', 'publisher-location'))
+                  #both title and author have values
+test_na_doi <-   if (!is.na(no_title_author) & !is.na(no_title_title)){
+    rcrossref::cr_works(flq = c(query.author = no_author_author, query.bibliographic = no_title_title), limit = 1,sort='relevance', select = c('DOI', 'title', 'author', 'created', 'published-print', 'published-online', 'publisher-location'))
+    #when the entry has a title and NA author
+  } else if(!is.na(no_title_title) & is.na(no_title_author)){
+    rcrossref::cr_works(flq = c(query.bibliographic = no_title_title), limit = 1,sort='relevance', select = c('DOI', 'title', 'author', 'created', 'published-print', 'published-online', 'publisher-location'))
+    #when the entry has NA-value title and non-NA value author
+  } else if(is.na(no_title_title) & !is.na(no_title_author)){
+    NA
   }#we only get the most relevant match based on rcrossref's `relevance` sorting. We do not check that the titles match each other.
 
  #data frame with info
-  data_returned <- info$data
+  if(!is.na(test_na_doi)){
+    data_returned <- test_na_doi$data
+  }else{
+    data_returned <- test_na_doi
+  }
 }
