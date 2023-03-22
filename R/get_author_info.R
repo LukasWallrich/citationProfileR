@@ -12,27 +12,39 @@ get_author_info <-function(df){
   # tester data and selecting important things
   df <- readr::read_csv("R/test_citations_table.csv")
   df <- df %>%
-    dplyr::select('AUTHOR', 'TITLE', 'DATE', 'YEAR')
+    dplyr::select('AUTHOR', 'TITLE', 'DATE', 'YEAR', 'DOI')
+  #get the list of papers that have DOI's present
+  list_doi <- df %>%
+    select(DOI) %>%
+    filter(!is.na(DOI))
 
-  #practice examples
-  practice_author <- df$AUTHOR[6]
-  print(practice_author)
-  practice_title <- df$TITLE[6]
-  practice_date <- df$DATE[6]
+  #get the list of papers that do not have DOIs
+  na_list_doi <- df %>%
+    filter(is.na(DOI))
 
-  # splitting the last name and initial to get only last name
-  #practice_author <- strsplit(practice_author, split = ",")[[1]] #https://www.programmingr.com/tutorial/how-to-use-strsplit-in-r/ (list in list problem)
-  practice_author <- strsplit(practice_author, split = ", ")
-  practice_author <- matrix(unlist(practice_author),ncol=2,byrow=T)
-  print("first")
-  print(practice_author)
-  practice_last_name <- practice_author[1, 1]
-  print(practice_author_last_name)
-  practice_initial <- practice_author[1, 2]
-  print(practice_initial)
-  #relevance/score is the score of the  match from the paper it returns
-  #add the year of publication
- info <- rcrossref::cr_works(flq = c(query.author = practice_author, query.bibliographic = practice_title), limit = 3,sort='relevance', select = c('DOI', 'title', 'author', 'created', 'published-print', 'published-online', 'publisher-location'))
+#get the info on the papers with DOIs from crossref
+info_dois <- rcrossref::cr_works(dois = pull(list_doi, DOI))
+
+#practice test cases for papers that have no DOI present
+only_title <- na_list_doi$TITLE[12]
+only_title_author <- na_list_doi$AUTHOR[12]
+only_author <- na_list_doi$AUTHOR[7]
+only_author_title <- na_list_doi$TITLE[7]
+
+# splitting the last name and initial to get only last name
+only_author <- strsplit(only_author, split = ",") #https://www.programmingr.com/tutorial/how-to-use-strsplit-in-r/ (list in list problem)
+practice_author <- matrix(unlist(practice_author),ncol=2,byrow=T)
+only_last_name <- only_author[1, 1]
+only_initial <- only_author[1,2]
+
+#test cases for the different available author/title info for each paper
+test_na_doi <-   if (!is.na(only_author) & !is.na(only_author_title)){
+    rcrossref::cr_works(flq = c(query.author = only_title_author, query.bibliographic = only_author_title), limit = 1,sort='relevance', select = c('DOI', 'title', 'author', 'created', 'published-print', 'published-online', 'publisher-location'))
+  } else if(!is.na(only_author_title) & is.na(only_author)){
+    rcrossref::cr_works(flq = c(query.bibliographic = only_author_title), limit = 1,sort='relevance', select = c('DOI', 'title', 'author', 'created', 'published-print', 'published-online', 'publisher-location'))
+  } else if(is.na(only_author_title) & !is.na(only_author)){
+    rcrossref::cr_works(flq = c(query.author = only_last_name), limit = 1,sort='relevance', select = c('DOI', 'title', 'author', 'created', 'published-print', 'published-online', 'publisher-location'))
+  }#we only get the most relevant match based on rcrossref's `relevance` sorting. We do not check that the titles match each other.
 
  #data frame with info
   data_returned <- info$data
