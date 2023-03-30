@@ -18,12 +18,58 @@ get_author_info <-function(df){
     select(DOI) %>%
     filter(!is.na(DOI))
 
+  #get the info on the papers with DOIs from crossref
+  info_dois <- rcrossref::cr_works(dois = pull(list_doi, DOI))
+
+#-----------------------PUTTING DOI info in a data frame
+
+  # need to duplicate the rows for papers with multiple author entries
+  #this code is copied from non-DOI code below
+  #if we pulled info from crossref
+  if(!is.null(test_na_doi)){
+
+    #get API payload
+    data_returned <- test_na_doi$data
+    print("data returned is")
+    print(data_returned)
+
+    print("The dims are")
+    print(dim(test_na_doi))
+
+
+    # if the rcrossref returned no results, just add no results matched to that entry
+    if(nrow(data_returned)==0){ #is.null(dim(data_returned))
+      print("I am getting into the null dim if statement")
+      first_name <- "No result matched"
+      finished[nrow(finished) + 1,] = c(author, title, date, first_name, NA, NA)
+      #move on to new entry
+      next
+    }
+
+    crossref_info <- data_returned[[5]][[1]]
+    #create a duplicate row for each author of the paper
+    for(contributor in 1:nrow(crossref_info)){
+      finished[nrow(finished) + 1,] = c(author, title, date, crossref_info[contributor,1],crossref_info[contributor,2], crossref_info[contributor,3])
+    }
+  }else{
+    #no information was gathered return NAs
+    first_name <- "inconclusive"
+    finished[nrow(finished) + 1,] = c(author, title, date, first_name, NA, NA)
+  }
+  print("Last updated finished is")
+  print(finished)
+
+}
+
+
+#---------------------------
+
+
+
+
   #get the list of papers that do not have DOIs
   na_list_doi <- df %>%
     filter(is.na(DOI))
-
-#get the info on the papers with DOIs from crossref
-info_dois <- rcrossref::cr_works(dois = pull(list_doi, DOI))
 
 #practice test cases for papers that have no DOI present
 # no_author_title <- na_list_doi$TITLE[12]
@@ -108,5 +154,6 @@ for(entry in 1:ncol(na_list_doi)){
   print(finished)
 
 }
+#doi_no_doi_data <- rbind(finished, info_dois) #this is for when we get the list of names for the doi-present entries
 return(finished)
 }
