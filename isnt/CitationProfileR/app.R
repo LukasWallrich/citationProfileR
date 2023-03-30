@@ -16,106 +16,68 @@ tags$head(tags$style(
 ui <- shiny::navbarPage("CitationProfileR", id = "tabs",
                         header = tagList(
                           shinybusy::add_busy_spinner(spin = "circle")
-                          ),
+                        ),
 
                         # Home tab
                         shiny::tabPanel(
                           'Home',
-                          shiny::navlistPanel(
-                            shiny::tabPanel(title = 'About',
-                                            htmltools::includeMarkdown('about.md')),
-                            shiny::tabPanel(title = 'Use Cases',
-                                            htmltools::includeMarkdown('use-cases.md'))
-                            )
+
+                          # upload
+                          shiny::fluidRow(
+                            style = "border: 1px solid black;",
+                            column(12,
+                                   h4("Upload your citation files"),
+                                   shiny::fileInput("file",  "", multiple = TRUE, accept = c('.pdf'))
+                                   )
+                            ),
+
+                          # view statement
+                          shiny::fluidRow(
+                            style = "border: 1px solid black;",
+                            column(12,
+                                   h4("View the Diversity Statement")
+                                   )
                           ),
 
-                        # File upload tab
-                        shiny::tabPanel(
-                          "File upload",
+                          # visualization
                           shiny::fluidRow(
+                            column(6,
+                                   style = "border: 1px solid black;",
+                                   h4("Citations"),
+                                   ),
+                            column(6,
+                                   style = "border: 1px solid black;",
+                                   h4("Graphs"),
+                                   )
+                            ),
+
+                          # download
+                          shiny::fluidRow(
+                            style = "border: 1px solid black;",
                             column(12,
-                                   # Sidebar layout with input and output definitions ----
-                                   shiny::sidebarLayout(
-
-                                     # step 1
-                                     shiny::sidebarPanel(
-                                       # Input: Select a file ----
-                                       h4("Step 1: Upload your citation files"),
-                                       shiny::fileInput("file",  "", multiple = TRUE, accept = c('.pdf')),),
-
-                                     # step 2 (!! not sure if we need this)
-                                     # Main panel for displaying outputs ----
-                                     shiny::mainPanel(
-                                       h4("Step 2: Double click the row to edit"),
-                                       # Output: Data file ----
-                                       DT::dataTableOutput("tbl_out"),))
+                                   h4("Download Your Transparancy Report"),
+                                   mainPanel(downloadButton("downloadData", "Download PDF"))
                                    )
                             )
                           ),
 
-                        # !! not sure if we need this
-                        shiny::tabPanel("Deduplicate",
-                                        # Action button: identify duplicates in uploaded dataset
-                                        shinyWidgets::actionBttn(
-                                          'identify_dups', 'Identify duplicate citations',
-                                          style = "pill",
-                                          color = "primary",
-                                          icon = icon("search")
-                                        ),
+                        # About tab
+                        shiny::tabPanel(
+                          "About",
+                          htmltools::includeMarkdown('about.md')
+                          ),
 
-                                        # Output: datatable of deduplication results
-                                        DT::dataTableOutput("dedup_results")
-                        ),
+                        # Help tab
+                        shiny::tabPanel(
+                          "Help",
+                          htmltools::includeMarkdown('help.md')
+                          ),
 
-                        # Visualization tab
-                        shiny::tabPanel("Citation Breakdown",
-                                        shiny::fluidRow(
-                                          column(12,
-                                                 shiny::fluidRow(
-                                                   column(12,
-                                                          # Sidebar layout with input and output definitions ----
-                                                          shiny::sidebarLayout(
-
-                                                            # Sidebar panel for inputs ----
-                                                            shiny::sidebarPanel(id="sidebar",
-
-                                                                                # COME BACK TO IN V2?
-                                                                                # 'Select sources',
-                                                                                # uiOutput('checkbox1'),
-                                                                                # hr(),
-                                                                                # 'Select tags',
-                                                                                # uiOutput('checkbox2')),
-
-                                                                                shinyWidgets::prettyRadioButtons(
-                                                                                  inputId = "comp_type",
-                                                                                  label = "Chose a comparison",
-                                                                                  inline = TRUE,
-                                                                                  choices = c("sources",
-                                                                                              "labels", "strings"),
-                                                                                  status="primary")),
-
-                                                            shiny::mainPanel(
-                                                              shiny::tabsetPanel(
-                                                                shiny::tabPanel("Plot overlap as a heatmap matrix", plotly::plotlyOutput("plotgraph1")),
-                                                                shiny::tabPanel("Plot overlap as an upset plot", downloadButton("downloadPlot"),
-                                                                                shiny::plotOutput("plotgraph2")),
-                                                                shiny::tabPanel("Review individual records", DT::dataTableOutput("reviewTab"))
-                                                              ))))
-                                                 )))),
-
-
-                        # Export tab
-                        shiny::tabPanel("Export",
-                                        shiny::fluidRow(
-                                          column(12,
-                                                 mainPanel(
-                                                   downloadButton("downloadData", "Download csv"),
-                                                   downloadButton("downloadData2", "Download bibtex")
-                                                 )
-                                          ))
-                        )
-
-
+                        # Ethics tab
+                        shiny::tabPanel(
+                          "Ethics",
+                          htmltools::includeMarkdown('ethics.md')
+                          )
 )
 
 # Define server logic to read selected file ----

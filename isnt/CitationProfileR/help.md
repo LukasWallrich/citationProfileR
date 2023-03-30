@@ -1,4 +1,4 @@
-## Use Cases
+## Help & Use Cases
 
 ### Case 1
 
