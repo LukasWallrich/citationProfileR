@@ -24,7 +24,6 @@ Imports:
     dplyr,
     bib2df,
     BBI,
-    bbr,
     rcrossref
 Suggests: 
     testthat (>= 3.0.0)
