@@ -1,4 +1,5 @@
 library(rcrossref)
+library(tidyverse)
 
 #' get_author_info
 #'
@@ -8,59 +9,82 @@ library(rcrossref)
 #' @export
 #'
 #' @examples
+
+#issues to work on:
+
+# figure out nrow/ncol situation -- switch to nrow. might need to calculate nrow before we put it inthe for loop and then put the number itself.
+
+# Might need to get rid of the variable "author" in the finished df
+
+#
+
 get_author_info <-function(df){
   # tester data and selecting important things
   df <- readr::read_csv("R/test_citations_table.csv")
   df <- df %>%
     dplyr::select('AUTHOR', 'TITLE', 'DATE', 'YEAR', 'DOI')
+
   #get the list of papers that have DOI's present
   list_doi <- df %>%
     select(DOI) %>%
     filter(!is.na(DOI))
 
-  #get the info on the papers with DOIs from crossref
-  info_dois <- rcrossref::cr_works(dois = pull(list_doi, DOI))
 
-#-----------------------PUTTING DOI info in a data frame
+  #create an empty df where we will put the info from crossref
+  doi_finished <- data.frame(matrix(nrow = 0, ncol = 6))
+  doi_column_names <- c("Title", "Year", "Given", "Family", "Sequence", "DOI")
+  colnames(doi_finished) = doi_column_names
 
-  # need to duplicate the rows for papers with multiple author entries
-  #this code is copied from non-DOI code below
-  #if we pulled info from crossref
-  if(!is.null(test_na_doi)){
+  for(entry in 1:nrow(list_doi)){
+    #pull the respective DOI
+    entry_doi <- list_doi$DOI[entry]
+
+    print("we are on entry")
+    print(entry)
+
+    #get the info on the papers with DOIs from crossref
+    info_dois <- rcrossref::cr_works(dois = entry_doi)
+
+
+  #if there are citations that have DOIs present turn it into a data frame
+  if(!is.null(info_dois)){ ## THIS MIGHT NEED TO GO ON LINE 28 before the for loop
 
     #get API payload
-    data_returned <- test_na_doi$data
+    doi_data_returned <- info_dois$data
     print("data returned is")
-    print(data_returned)
+    print(doi_data_returned)
 
     print("The dims are")
-    print(dim(test_na_doi))
+    print(dim(doi_data_returned))
 
+    #get the title, date, affiliation info
+    title <- doi_data_returned$title
+    date <- doi_data_returned$created
+    authors <- doi_data_returned$author
 
     # if the rcrossref returned no results, just add no results matched to that entry
-    if(nrow(data_returned)==0){ #is.null(dim(data_returned))
+    if(nrow(doi_data_returned)==0){ #is.null(dim(data_returned))
       print("I am getting into the null dim if statement")
       first_name <- "No result matched"
-      finished[nrow(finished) + 1,] = c(author, title, date, first_name, NA, NA)
+      doi_finished[nrow(doi_finished) + 1,] = c(title, date, first_name, NA, NA, entry_doi)
       #move on to new entry
       next
     }
 
-    crossref_info <- data_returned[[5]][[1]]
+    crossref_info <- doi_data_returned[[30]][[1]]
     #create a duplicate row for each author of the paper
     for(contributor in 1:nrow(crossref_info)){
-      finished[nrow(finished) + 1,] = c(author, title, date, crossref_info[contributor,1],crossref_info[contributor,2], crossref_info[contributor,3])
+      doi_finished[nrow(doi_finished) + 1,] = c(title, date, crossref_info[contributor,1],crossref_info[contributor,2], crossref_info[contributor,3], entry_doi)
     }
   }else{
     #no information was gathered return NAs
     first_name <- "inconclusive"
-    finished[nrow(finished) + 1,] = c(author, title, date, first_name, NA, NA)
+    doi_finished[nrow(doi_finished) + 1,] = c(title, date, first_name, NA, NA, entry_doi)
   }
   print("Last updated finished is")
-  print(finished)
+  print(doi_finished)
 
 }
-
 
 #---------------------------
 
@@ -92,6 +116,7 @@ colnames(finished) = column_names
   #                      given = c(),
   #                      family = c(),
   #                      sequence = c())
+
 
 for(entry in 1:ncol(na_list_doi)){
   #pull the author, title, date entries from the NA-DOI data
@@ -157,3 +182,4 @@ for(entry in 1:ncol(na_list_doi)){
 #doi_no_doi_data <- rbind(finished, info_dois) #this is for when we get the list of names for the doi-present entries
 return(finished)
 }
+
