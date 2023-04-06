@@ -87,7 +87,7 @@ ui <- navbarPage(
 
     # download citation data
     shiny::fluidRow(
-      style = "border: 1px solid black;",
+      # style = "border: 1px solid black;",
       column(
         width = 12,
         h4("Download Your Citation Data"),
@@ -107,7 +107,7 @@ ui <- navbarPage(
 
     # download analysis
     shiny::fluidRow(
-      style = "border: 1px solid black;",
+      # style = "border: 1px solid black;",
       column(
         width = 12,
         h4("Download Your Analysis Report"),
