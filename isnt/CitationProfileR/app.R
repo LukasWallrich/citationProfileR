@@ -307,9 +307,8 @@ server <- function(input, output, session) {
   ### try plotly with shiny
   output$testPlot <- renderPlotly({
     dat1 <- data.frame(
-      sex = factor(c("Female","Female","Male","Male")),
-      time = factor(c("Lunch","Dinner","Lunch","Dinner"), levels=c("Lunch","Dinner")),
-      total_bill = c(13.53, 16.81, 16.24, 17.42)
+      sex = factor(c("Female", "Male")),
+      total_bill = c(df$total_p) #change input later one when name is finalized
     )
 
     p <- ggplot(data=dat1, aes(x=time, y=total_bill, fill=sex)) +
