@@ -12,9 +12,6 @@ guessGender(nameVector, countryCode = NA, apiKey = NA)
 \item{countryCode}{An optional ISO 3166-1 alpha-2 country code.}
 
 \item{apiKey}{An optional API key for genderize.io.}
-
-\item{languageCode}{An optional ISO 639-1 language code. Only one of
-countryCode or languageCode can be specified.}
 }
 \description{
 This function uses the genderize.io API to supply estimates of the gender one

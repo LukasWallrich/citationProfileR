@@ -104,8 +104,6 @@ lookupNameVectorGenderize <- function(nameVector,
 #' or more names.
 #' @param nameVector A vector containing one or more names to look up.
 #' @param countryCode An optional ISO 3166-1 alpha-2 country code.
-#' @param languageCode An optional ISO 639-1 language code. Only one of
-#'   countryCode or languageCode can be specified.
 #' @param apiKey An optional API key for genderize.io.
 #' @export
 #' @examples

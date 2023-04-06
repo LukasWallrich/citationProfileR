@@ -21,10 +21,7 @@ Imports:
     httr,
     jsonlite,
     readr,
-    dplyr,
-    bib2df,
-    BBI,
-    rcrossref
+    dplyr
 Suggests: 
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
