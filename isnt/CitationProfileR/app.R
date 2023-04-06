@@ -1,5 +1,7 @@
 library(shiny)
 library(plotly)
+library(CitationProfileR)
+library(shinythemes)
 
 options(shiny.maxRequestSize=30*1024^2)
 
@@ -15,13 +17,56 @@ tags$head(tags$style(
 
 # Define UI for data upload app ----
 ui <- navbarPage(
+  theme = shinytheme("superhero"),
   title = "CitationProfileR",
   id = "tabs",
   header = tagList(shinybusy::add_busy_spinner(spin = "circle")),
+
+  ### tab one -- Home/About/Ethics
   tabPanel(
     title = "Home",
+
+    shiny::navlistPanel(
+      # "Penguins",
+      tabPanel(title = "About",
+               htmltools::includeMarkdown(path = "about.md")
+      ),
+      tabPanel(title = "Ethics",
+               htmltools::includeMarkdown(path = "ethics.md")
+      ),
+      tabPanel(title = "Help & Use Cases",
+               htmltools::includeMarkdown(path = "help.md")
+      )
+    ),
+
     shiny::fluidRow(
       style = "border: 1px solid black;",
+      column(
+        width = 12,
+        h4("View the Diversity Statement")
+      )
+    ),
+
+    shiny::fluidRow(
+      column(
+        width = 6,
+        style = "border: 1px solid black;",
+        h4("Citations")
+      ),
+      column(
+        width = 6,
+        # style = "border: 1px solid black;",
+        h4("Graphs"),
+        plotlyOutput("testPlot")  #### try plotly
+      )
+    )
+  ),
+
+  ### tab two -- upload pdf manuscripts
+  tabPanel(
+    title = "Upload",
+    shiny::fluidRow(
+      # style = "border: 1px solid black;",
       column(
         width = 12,
         h4("Upload your citation files"),
@@ -32,32 +77,20 @@ ui <- navbarPage(
           accept = c(".pdf")
         )
       )
-    ),
+    )
+
+  ),
+
+  ### tab three -- process data and download dataset
+  tabPanel(
+    title = "Citation Data",
+
+    # download citation data
     shiny::fluidRow(
       style = "border: 1px solid black;",
       column(
         width = 12,
-        h4("View the Diversity Statement")
-      )
-    ),
-    shiny::fluidRow(
-      column(
-        width = 6,
-        style = "border: 1px solid black;",
-        h4("Citations")
-      ),
-      column(
-        width = 6,
-        style = "border: 1px solid black;",
-        h4("Graphs"),
-        plotlyOutput("testPlot")  #### try plotly
-      )
-    ),
-    shiny::fluidRow(
-      style = "border: 1px solid black;",
-      column(
-        width = 12,
-        h4("Download Your Transparancy Report"),
+        h4("Download Your Citation Data"),
         mainPanel(
           downloadButton(
             outputId = "downloadData",
@@ -67,17 +100,26 @@ ui <- navbarPage(
       )
     )
   ),
+
+  ### tab four -- analysis report
   tabPanel(
-    title = "About",
-    htmltools::includeMarkdown(path = "about.md")
-  ),
-  tabPanel(
-    title = "Help",
-    htmltools::includeMarkdown(path = "help.md")
-  ),
-  tabPanel(
-    title = "Ethics",
-    htmltools::includeMarkdown(path = "ethics.md")
+    title = "Analysis",
+
+    # download analysis
+    shiny::fluidRow(
+      style = "border: 1px solid black;",
+      column(
+        width = 12,
+        h4("Download Your Analysis Report"),
+        mainPanel(
+          downloadButton(
+            outputId = "downloadData",
+            label = "Download PDF"
+          )
+        )
+      )
+    )
+
   )
 )
 
