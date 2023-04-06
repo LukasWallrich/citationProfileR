@@ -5,19 +5,9 @@ library(shinythemes)
 
 options(shiny.maxRequestSize=30*1024^2)
 
-# Set background color
-tags$head(tags$style(
-  HTML('#sidebar {
-            background-color: #ffffff;
-        }
-
-        body, label, input, button, select {
-          font-family: "Arial";
-        }')))
-
 # Define UI for data upload app ----
 ui <- navbarPage(
-  theme = shinytheme("superhero"),
+  theme = shinytheme("united"),
   title = "CitationProfileR",
   id = "tabs",
   header = tagList(shinybusy::add_busy_spinner(spin = "circle")),
@@ -36,28 +26,6 @@ ui <- navbarPage(
       ),
       tabPanel(title = "Help & Use Cases",
                htmltools::includeMarkdown(path = "help.md")
-      )
-    ),
-
-    shiny::fluidRow(
-      style = "border: 1px solid black;",
-      column(
-        width = 12,
-        h4("View the Diversity Statement")
-      )
-    ),
-
-    shiny::fluidRow(
-      column(
-        width = 6,
-        style = "border: 1px solid black;",
-        h4("Citations")
-      ),
-      column(
-        width = 6,
-        # style = "border: 1px solid black;",
-        h4("Graphs"),
-        plotlyOutput("testPlot")  #### try plotly
       )
     )
   ),
@@ -94,7 +62,7 @@ ui <- navbarPage(
         mainPanel(
           downloadButton(
             outputId = "downloadData",
-            label = "Download PDF"
+            label = "Download CSV"
           )
         )
       )
@@ -104,10 +72,16 @@ ui <- navbarPage(
   ### tab four -- analysis report
   tabPanel(
     title = "Analysis",
+    shiny::fluidRow(
+      column(
+        width = 12,
+        h4("Gender Breakdown Graph"),
+        plotlyOutput("testPlot")  #### try plotly
+      )
+    ),
 
     # download analysis
     shiny::fluidRow(
-      # style = "border: 1px solid black;",
       column(
         width = 12,
         h4("Download Your Analysis Report"),
