@@ -133,7 +133,9 @@ guessGender <- function(nameVector,
   }
 
   final_output <- responseDF %>%
-    dplyr::select("name", "gender", "country_id", "probability")
+    dplyr::select("name", "gender", "country_id", "probability") %>%
+    dplyr::group_by(gender) %>%
+    dplyr::mutate(total_p = prod(probability))
 
   return(final_output)
 }
