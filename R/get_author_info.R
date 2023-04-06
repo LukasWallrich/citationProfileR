@@ -33,12 +33,28 @@ get_author_info <-function(df){
   info_dois <- rcrossref::cr_works(dois = pull(list_doi, DOI))
   info_df_dois <- info_dois$data
 
+#--------
+  doi_finished <- data.frame(matrix(nrow = 0, ncol = 6))
+  doi_column_names <- c("Title", "Year", "Given", "Family", "Sequence", "DOI")
+  colnames(doi_finished) = doi_column_names
+
+
+  # need to duplicate the rows for papers with multiple author entries	  for(entry in 1:nrow(list_doi)){
+  #this code is copied from non-DOI code below	    #pull the respective DOI
+  #if we pulled info from crossref	    entry_doi <- list_doi$DOI[entry]
+  if(!is.null(test_na_doi)){
+    print("we are on entry")
+    print(entry)
+
+    #get the info on the papers with DOIs from crossref
+    info_dois <- rcrossref::cr_works(dois = entry_doi)
+
+  }
+
   ## questions: From doing this, we are getting the right authors but will the additional authors also be correct? How do DOI work?
   ## in some there is affiliation.info_df_dois[[30]][[3]] in other there is not [[30]][[5]]
 
 #---------------------------
-
-
 
 
   #get the list of papers that do not have DOIs
@@ -89,6 +105,9 @@ for(entry in 1:nrow(na_list_doi)){
     print("data returned is")
     print(data_returned)
 
+    print("The author data is")
+    print(data_returned[[5]][[1]])
+
     print("The dims are")
     print(dim(data_returned))
 
@@ -98,7 +117,7 @@ for(entry in 1:nrow(na_list_doi)){
 
 
     # if the rcrossref returned no results, just add no results matched to that entry
-    if(is.null(data_returned) | nrow(data_returned)== 0){ #is.null(dim(data_returned)).  This wawsnt working nrow(data_returned)==0
+    if(is.null(data_returned) | nrow(data_returned)== 0){ #is.null(dim(data_returned)). # we have to check for both cases, if we get a null return or if we get a return but it is empty
       print("I am getting into the null dim if statement")
       first_name <- "No result matched"
       finished[nrow(finished) + 1,] = c(author, title, date, first_name, NA, NA)
