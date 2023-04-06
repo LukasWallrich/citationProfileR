@@ -1,4 +1,5 @@
 library(shiny)
+library(plotly)
 
 options(shiny.maxRequestSize=30*1024^2)
 
@@ -13,72 +14,73 @@ tags$head(tags$style(
         }')))
 
 # Define UI for data upload app ----
-ui <- shiny::navbarPage("CitationProfileR", id = "tabs",
-                        header = tagList(
-                          shinybusy::add_busy_spinner(spin = "circle")
-                        ),
-
-                        # Home tab
-                        shiny::tabPanel(
-                          'Home',
-
-                          # upload
-                          shiny::fluidRow(
-                            style = "border: 1px solid black;",
-                            column(12,
-                                   h4("Upload your citation files"),
-                                   shiny::fileInput("file",  "", multiple = TRUE, accept = c('.pdf'))
-                                   )
-                            ),
-
-                          # view statement
-                          shiny::fluidRow(
-                            style = "border: 1px solid black;",
-                            column(12,
-                                   h4("View the Diversity Statement")
-                                   )
-                          ),
-
-                          # visualization
-                          shiny::fluidRow(
-                            column(6,
-                                   style = "border: 1px solid black;",
-                                   h4("Citations"),
-                                   ),
-                            column(6,
-                                   style = "border: 1px solid black;",
-                                   h4("Graphs"),
-                                   )
-                            ),
-
-                          # download
-                          shiny::fluidRow(
-                            style = "border: 1px solid black;",
-                            column(12,
-                                   h4("Download Your Transparancy Report"),
-                                   mainPanel(downloadButton("downloadData", "Download PDF"))
-                                   )
-                            )
-                          ),
-
-                        # About tab
-                        shiny::tabPanel(
-                          "About",
-                          htmltools::includeMarkdown('about.md')
-                          ),
-
-                        # Help tab
-                        shiny::tabPanel(
-                          "Help",
-                          htmltools::includeMarkdown('help.md')
-                          ),
-
-                        # Ethics tab
-                        shiny::tabPanel(
-                          "Ethics",
-                          htmltools::includeMarkdown('ethics.md')
-                          )
+ui <- navbarPage(
+  title = "CitationProfileR",
+  id = "tabs",
+  header = tagList(shinybusy::add_busy_spinner(spin = "circle")),
+  tabPanel(
+    title = "Home",
+    shiny::fluidRow(
+      style = "border: 1px solid black;",
+      column(
+        width = 12,
+        h4("Upload your citation files"),
+        shiny::fileInput(
+          inputId = "file",
+          label = "",
+          multiple = TRUE,
+          accept = c(".pdf")
+        )
+      )
+    ),
+    shiny::fluidRow(
+      style = "border: 1px solid black;",
+      column(
+        width = 12,
+        h4("View the Diversity Statement")
+      )
+    ),
+    shiny::fluidRow(
+      column(
+        width = 6,
+        style = "border: 1px solid black;",
+        h4("Citations")
+      ),
+      column(
+        width = 6,
+        style = "border: 1px solid black;",
+        h4("Graphs"),
+        plotlyOutput("testPlot")  #### try plotly
+      )
+    ),
+    shiny::fluidRow(
+      style = "border: 1px solid black;",
+      column(
+        width = 12,
+        h4("Download Your Transparancy Report"),
+        mainPanel(
+          downloadButton(
+            outputId = "downloadData",
+            label = "Download PDF"
+          )
+        )
+      )
+    )
+  ),
+  tabPanel(
+    title = "About",
+    htmltools::includeMarkdown(path = "about.md")
+  ),
+  tabPanel(
+    title = "Help",
+    htmltools::includeMarkdown(path = "help.md")
+  ),
+  tabPanel(
+    title = "Ethics",
+    htmltools::includeMarkdown(path = "ethics.md")
+  )
 )
+
 
 # Define server logic to read selected file ----
 server <- function(input, output, session) {
@@ -258,6 +260,23 @@ server <- function(input, output, session) {
       export_bib(rv$unique, file)
     }
   )
+
+
+  ### try plotly with shiny
+  output$testPlot <- renderPlotly({
+    dat1 <- data.frame(
+      sex = factor(c("Female","Female","Male","Male")),
+      time = factor(c("Lunch","Dinner","Lunch","Dinner"), levels=c("Lunch","Dinner")),
+      total_bill = c(13.53, 16.81, 16.24, 17.42)
+    )
+
+    p <- ggplot(data=dat1, aes(x=time, y=total_bill, fill=sex)) +
+      geom_bar(stat="identity", position=position_dodge(), colour="black") +
+      scale_fill_manual(values=c("#999999", "#E69F00"))
+
+    fig <- ggplotly(p)
+    fig
+  })
 
 }
 
