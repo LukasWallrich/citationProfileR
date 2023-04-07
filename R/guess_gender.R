@@ -1,5 +1,4 @@
-# the following code is adapted from
-# https://github.com/coccopuffs/GenderGuesser/blob/master/R/guessGender.R
+# the following code is adapted from https://github.com/coccopuffs/GenderGuesser/blob/master/R/guessGender.R
 # but uses the gender-api from https://gender-api.com/ as the means to predict gender instead
 
 #' Guess a names' gender
