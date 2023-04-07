@@ -1,14 +1,13 @@
 
-df = c("Natalie", "Liam", "Eamon")
-cr_code = "FR"
+df = c("Natalie")
 
-refs <- guessGender(df, countryCode = cr_code)
+refs <- guessGender(df)
 
 #Test to make sure every name is associated with a probability/ checks size and shape
 
 test_that("guessGender", {
   expect_equal(ncol(refs), 5)
-  expect_equal(nrow(refs), 3)
+  expect_equal(nrow(refs), 1)
 })
 
 
@@ -18,8 +17,7 @@ test_that("guessGender", {
 #expect_false from https://www.rdocumentation.org/packages/testthat/versions/0.11.0/topics/expect_true
 
 test_that("guessGender", {
-  expect_false(any(refs[4] < 0), any(refs[4] > 1))
-  expect_false(any(refs[5] < 0), any(refs[5] > 1))
+  expect_false(any(refs[4] < 0), any(refs[4] > 100))
 })
 
 

@@ -4,19 +4,16 @@
 \alias{guessGender}
 \title{Guess names' genders}
 \usage{
-guessGender(nameVector, countryCode = NA, apiKey = NA)
+guessGender(name, apiKey = NA)
 }
 \arguments{
-\item{nameVector}{A vector containing one or more names to look up.}
+\item{name}{A name to look up.}
 
-\item{countryCode}{An optional ISO 3166-1 alpha-2 country code.}
-
-\item{apiKey}{An optional API key for genderize.io.}
+\item{apiKey}{An optional API key for https://gender-api.com/.}
 }
 \description{
-This function uses the genderize.io API to supply estimates of the gender one
-or more names.
+This function uses the https://gender-api.com/ API to supply estimates of the gender for one name.
 }
 \examples{
-guessGender(c("Natalie", "Liam", "Eamon"), countryCode = "US")
+guessGender("Natalie")
 }

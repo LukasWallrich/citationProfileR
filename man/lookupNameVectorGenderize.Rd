@@ -2,23 +2,14 @@
 % Please edit documentation in R/genderizeAPI.R
 \name{lookupNameVectorGenderize}
 \alias{lookupNameVectorGenderize}
-\title{Look up a vector of names on genderize.io.}
+\title{Look up a vector of names on https://gender-api.com/.}
 \usage{
 lookupNameVectorGenderize(
   nameVector,
-  countryCode = NA,
-  apiKey = "7dffb3b373a9efd349a01c214e59e00b"
+  key = "ucThdyFEbbTRNp2EhSx4UUn3kMKMThqthcnZ"
 )
 }
-\arguments{
-\item{nameVector}{A vector containing one or more names to look up.}
-
-\item{countryCode}{An optional ISO 3166-1 alpha-2 country code.}
-
-\item{apiKey}{An optional API key for genderize.io.}
-}
 \description{
-This function actually implements the genderize.io API. Can only query 10
-names at a time.
+Look up a vector of names on https://gender-api.com/.
 }
 \keyword{internal}
