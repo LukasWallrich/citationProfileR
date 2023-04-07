@@ -2,21 +2,21 @@
 # https://github.com/coccopuffs/GenderGuesser/blob/master/R/guessGender.R
 # but uses the gender-api from https://gender-api.com/ as the means to predict gender instead
 
-
-#' Guess names' genders
+#' Guess a names' gender
 #'
 #' This function uses the https://gender-api.com/ API to supply estimates of the gender for one name.
 #' @param name A name to look up.
-#' @param apiKey An optional API key for https://gender-api.com/.
+#' @param key An optional API key for https://gender-api.com/.
+#' @param cache (logical) local cache to avoid similar request combinations repeating
 #' @keywords internal
 #' @export
 #' @examples
-#'guess_gender("Natalie", key = "ucThdyFEbbTRNp2EhSx4UUn3kMKMThqthcnZ")
+#'guess_gender("Natalie", key = "ucThdyFEbbTRNp2EhSx4UUn3kMKMThqthcnZ", cache = FALSE)
 guess_gender <- function(name, key = "ucThdyFEbbTRNp2EhSx4UUn3kMKMThqthcnZ", cache = FALSE) {
 
   # Construct the query
   query <- paste("name=", name, sep = "", collapse = "&")
-  query <- paste(query, "&key=", "ucThdyFEbbTRNp2EhSx4UUn3kMKMThqthcnZ", sep = "")
+  query <- paste(query, "&key=", key, sep = "")
 
   cat(query)
 
