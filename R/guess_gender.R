@@ -10,19 +10,22 @@
 #' @keywords internal
 #' @export
 #' @examples
-#'guess_gender("Rithika", key = "ucThdyFEbbTRNp2EhSx4UUn3kMKMThqthcnZ")
+#'guess_gender("Rithika", key = "YYwMFujDM6M6GXUo2tVRgHE4J5E22ZNjj792")
 
-guess_gender <- function(name, key = "ucThdyFEbbTRNp2EhSx4UUn3kMKMThqthcnZ", cache = FALSE) {
+guess_gender <- function(name, key = "YYwMFujDM6M6GXUo2tVRgHE4J5E22ZNjj792", cache = FALSE) {
 
-  #guess_gender_cache_env <- env(Rithika = guess_gender("Rithika", key = "ucThdyFEbbTRNp2EhSx4UUn3kMKMThqthcnZ"))
+  #guess_gender_cache_env <- env(Rithika = guess_gender("Rithika", key = "YYwMFujDM6M6GXUo2tVRgHE4J5E22ZNjj792"))
   #env_cache(guess_gender_cache_env, "Rithika", "default")
   #Result:
   #name gender samples accuracy duration
   #1 rithika female     318       99     10ms
 
-  if (cache == TRUE) {
-    responseDF = rlang::env_cache(guess_gender_cache_env, "name", "default")
-  }
+  #name = "Raghu"
+  #guess_gender_cache_env <- env(name = guess_gender(name, key = "YYwMFujDM6M6GXUo2tVRgHE4J5E22ZNjj792"))
+  #env_cache(guess_gender_cache_env, "name", "default")
+  #Result
+  #name gender samples accuracy duration
+  #1 raghu   male    3349       99     11ms
 
   query <- paste("name=", name, collapse = "&", "&key=", key, sep = "")
   queryResult <- httr::GET("https://gender-api.com/get?", query = query, httr::config(ssl_verifypeer = FALSE))
@@ -50,6 +53,11 @@ guess_gender <- function(name, key = "ucThdyFEbbTRNp2EhSx4UUn3kMKMThqthcnZ", cac
     responseDF <- NULL
   }
 
-  guess_gender_cache_env <- rlang::env(name = responseDF)
+  if (cache == TRUE) {
+    guess_gender_cache_env <- rlang::env(name = responseDF)
+    responseDF <- rlang::env_cache(guess_gender_cache_env, "name", "default")
+  }
+
   return(responseDF)
+
 }
