@@ -2,7 +2,7 @@
 df = c("Natalie")
 key = "ucThdyFEbbTRNp2EhSx4UUn3kMKMThqthcnZ"
 
-refs <- guess_gender(df, key)
+refs <- guess_gender(df, key, cache = TRUE)
 
 #Test to make sure every name is associated with a probability/ checks size and shape
 

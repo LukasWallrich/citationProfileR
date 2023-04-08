@@ -17,6 +17,6 @@ guess_gender(name, key = "ucThdyFEbbTRNp2EhSx4UUn3kMKMThqthcnZ", cache = FALSE)
 This function uses the https://gender-api.com/ API to supply estimates of the gender for one name.
 }
 \examples{
-guess_gender("Natalie", key = "ucThdyFEbbTRNp2EhSx4UUn3kMKMThqthcnZ", cache = FALSE)
+guess_gender("Natalie", key = "ucThdyFEbbTRNp2EhSx4UUn3kMKMThqthcnZ")
 }
 \keyword{internal}

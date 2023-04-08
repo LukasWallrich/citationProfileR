@@ -10,17 +10,23 @@
 #' @keywords internal
 #' @export
 #' @examples
-#'guess_gender("Natalie", key = "ucThdyFEbbTRNp2EhSx4UUn3kMKMThqthcnZ", cache = FALSE)
+#'guess_gender("Natalie", key = "ucThdyFEbbTRNp2EhSx4UUn3kMKMThqthcnZ")
 guess_gender <- function(name, key = "ucThdyFEbbTRNp2EhSx4UUn3kMKMThqthcnZ", cache = FALSE) {
 
-  # Construct the query
-  query <- paste("name=", name, sep = "", collapse = "&")
-  query <- paste(query, "&key=", key, sep = "")
+  if (cache == TRUE) {
+    req <- paste("name=", name, collapse = "&", "&key=", key, sep = "")
+    #guess_gender_cache_env our environment
+    rlang::env_cache(env = guess_gender_cache_env,
+                     nm = req,
+                     default = httr::GET("https://gender-api.com/get?", query = req, httr::config(ssl_verifypeer = FALSE)))
+    #currently a NULL value
+    queryResult <- guess_gender_cache_env$default
+  }
+  else {
+    query <- paste("name=", name, collapse = "&", "&key=", key, sep = "")
+    queryResult <- httr::GET("https://gender-api.com/get?", query = query, httr::config(ssl_verifypeer = FALSE))
+  }
 
-  cat(query)
-
-  # Run it!
-  queryResult <- httr::GET("https://gender-api.com/get?", query = query, httr::config(ssl_verifypeer = FALSE))
 
   if (httr::status_code(queryResult) == 200) {
     responseFromJSON <- jsonlite::fromJSON(httr::content(queryResult, as = "text"))
