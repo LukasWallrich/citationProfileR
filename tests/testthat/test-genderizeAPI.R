@@ -1,5 +1,5 @@
 
-df = c("Natalie")
+df = "Natalie"
 key = "ucThdyFEbbTRNp2EhSx4UUn3kMKMThqthcnZ"
 
 refs <- guess_gender(df, key, cache = TRUE)

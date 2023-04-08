@@ -10,13 +10,18 @@
 #' @keywords internal
 #' @export
 #' @examples
-#'guess_gender("Natalie", key = "ucThdyFEbbTRNp2EhSx4UUn3kMKMThqthcnZ")
+#'guess_gender("Rithika", key = "ucThdyFEbbTRNp2EhSx4UUn3kMKMThqthcnZ")
+
 guess_gender <- function(name, key = "ucThdyFEbbTRNp2EhSx4UUn3kMKMThqthcnZ", cache = FALSE) {
 
-  guess_gender_cache_env <- rlang::env(name = name)
+  #guess_gender_cache_env <- env(Rithika = guess_gender("Rithika", key = "ucThdyFEbbTRNp2EhSx4UUn3kMKMThqthcnZ"))
+  #env_cache(guess_gender_cache_env, "Rithika", "default")
+  #Result:
+  #name gender samples accuracy duration
+  #1 rithika female     318       99     10ms
 
   if (cache == TRUE) {
-    name = rlang::env_cache(guess_gender_cache_env, "name", "default")
+    responseDF = rlang::env_cache(guess_gender_cache_env, "name", "default")
   }
 
   query <- paste("name=", name, collapse = "&", "&key=", key, sep = "")
@@ -45,5 +50,6 @@ guess_gender <- function(name, key = "ucThdyFEbbTRNp2EhSx4UUn3kMKMThqthcnZ", cac
     responseDF <- NULL
   }
 
+  guess_gender_cache_env <- rlang::env(name = responseDF)
   return(responseDF)
 }
