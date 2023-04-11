@@ -76,7 +76,7 @@ ui <- navbarPage(
       column(
         width = 12,
         h4("Gender Breakdown Graph"),
-        plotlyOutput("testPlot")  #### try plotly
+        plotOutput("genderBarPlot")
       )
     ),
 
@@ -279,17 +279,16 @@ server <- function(input, output, session) {
 
 
   ### try plotly with shiny
-  output$testPlot <- renderPlotly({
+  output$genderBarPlot <- renderPlot({
     dat1 <- data.frame(
-      sex = factor(c("Female", "Male")),
-      total_bill = c(df$total_p) #change input later one when name is finalized
+      gender = factor(c("Female", "Male", "Inconclusive")),
+      count = c(3, 5, 2)
     )
 
-    p <- ggplot(data=dat1, aes(x=time, y=total_bill, fill=sex)) +
-      geom_bar(stat="identity", position=position_dodge(), colour="black") +
-      scale_fill_manual(values=c("#999999", "#E69F00"))
+    bar <- ggplot(data=dat1, aes(x=gender, y=count)) +
+      geom_bar(stat="identity")
 
-    fig <- ggplotly(p)
+    fig <- ggplotly(bar)
     fig
   })
 
