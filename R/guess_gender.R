@@ -28,36 +28,48 @@ guess_gender <- function(name, key = "YYwMFujDM6M6GXUo2tVRgHE4J5E22ZNjj792", cac
   #1 raghu   male    3349       99     11ms
 
   query <- paste("name=", name, collapse = "&", "&key=", key, sep = "")
-  queryResult <- httr::GET("https://gender-api.com/get?", query = query, httr::config(ssl_verifypeer = FALSE))
-
-  if (httr::status_code(queryResult) == 200) {
-    responseFromJSON <- jsonlite::fromJSON(httr::content(queryResult, as = "text"))
-    responseDF <- data.frame(name = responseFromJSON[["name"]],
-                             gender = responseFromJSON[["gender"]],
-                             samples = responseFromJSON[["samples"]],
-                             accuracy = responseFromJSON[["accuracy"]],
-                             duration = responseFromJSON[["duration"]],
-                             stringsAsFactors = FALSE)
-
-  } else {
-    warning(paste("\n!!!! http returned status code:",
-                  httr::status_code(queryResult),
-                  "!!!! message:",
-                  httr::http_status(queryResult)$message,
-                  "!!!! error:",
-                  httr::content(queryResult)$error,
-                  sep="\n"))
-    if (httr::status_code(queryResult) == 429){
-      stop("The number of available requests are exhausted")
-    }
-    responseDF <- NULL
-  }
+  #queryResult <- httr::GET("https://gender-api.com/get?", query = query, httr::config(ssl_verifypeer = FALSE))
 
   if (cache == TRUE) {
-    guess_gender_cache_env <- rlang::env(name = responseDF)
-    responseDF <- rlang::env_cache(guess_gender_cache_env, "name", "default")
+    #if query in cache:
+    if (!is.na(rlang::env_cache(guess_gender_cache_env, name, "default"))) {
+      #get res from cache --> env_cache(guess_gender_cache_env, "name", "default") / guess_gender_cache_env$name
+      #return res
+      return(guess_gender_cache_env$name)
+    }
   }
 
-  return(responseDF)
+  else {
+    #get res from api
+    queryResult <- httr::GET("https://gender-api.com/get?", query = query, httr::config(ssl_verifypeer = FALSE))
 
+    if (httr::status_code(queryResult) == 200) {
+      responseFromJSON <- jsonlite::fromJSON(httr::content(queryResult, as = "text"))
+      responseDF <- data.frame(name = responseFromJSON[["name"]],
+                               gender = responseFromJSON[["gender"]],
+                               samples = responseFromJSON[["samples"]],
+                               accuracy = responseFromJSON[["accuracy"]],
+                               duration = responseFromJSON[["duration"]],
+                               stringsAsFactors = FALSE)
+
+    } else {
+      warning(paste("\n!!!! http returned status code:",
+                    httr::status_code(queryResult),
+                    "!!!! message:",
+                    httr::http_status(queryResult)$message,
+                    "!!!! error:",
+                    httr::content(queryResult)$error,
+                    sep="\n"))
+      if (httr::status_code(queryResult) == 429){
+        stop("The number of available requests are exhausted")
+      }
+      responseDF <- NULL
+    }
+
+    #store res in cache
+    guess_gender_cache_env <- rlang::env(name = responseDF)
+
+    #return(guess_gender_cache_env$name)
+    return(rlang::env_cache(guess_gender_cache_env, name, default = responseDF))
+  }
 }
