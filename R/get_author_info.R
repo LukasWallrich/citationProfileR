@@ -46,7 +46,6 @@ all_info_doi <- list_doi %>%
 
 #---------------------------
 
-
   #get the list of papers that do not have DOIs
   na_list_doi <- df %>%
     filter(is.na(DOI))
@@ -107,26 +106,25 @@ for(entry in 1:nrow(na_list_doi)){
 
   #unnest the dataframe we got from crossref
   all_info_non_doi <-  finished %>%
-    tidyr::unnest(Found_author) %>%
-    all_info_non_doi$Date <- as.numeric(all_info_non_doi$Date) %>%
-    all_info_non_doi$Year <- as.numeric(all_info_non_doi$Year) %>%
+    tidyr::unnest(Found_author)
+
+    all_info_non_doi$Date <- as.numeric(all_info_non_doi$Date)
+    all_info_non_doi$Year <- as.numeric(all_info_non_doi$Year)
     all_info_non_doi$index <- as.numeric(all_info_non_doi$index)
 
   #bind both doi and non doi results together
   full_results <- dplyr::bind_rows(all_info_doi, all_info_non_doi)
 
+  #checking results
   #for some reaason there is NA for index?
   checkout <- full_results %>%
     group_by(index) %>%
     summarize(n = n())
-
-  hehe <- full_results %>%
+# For some reason only some of the doi ones get all author's original info copied while these don't?
+  index_na <- full_results %>%
     filter(is.na(index))
 
 return(finished)
 }
 
-checking <- finished %>%
-  group_by(Author, Title) %>%
-  summarize(n = n())
 
