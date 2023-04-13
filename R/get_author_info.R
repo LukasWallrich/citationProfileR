@@ -22,7 +22,8 @@ get_author_info <-function(df){
   # tester data and selecting important things
   df <- readr::read_csv("R/test_citations_table.csv")
   df <- df %>%
-    dplyr::select('AUTHOR', 'TITLE', 'DATE', 'YEAR', 'DOI')
+    dplyr::select('AUTHOR', 'TITLE', 'DATE', 'YEAR', 'DOI') %>%
+    mutate(index = row_number())
 
   #get the list of papers that have DOI's present
   list_doi <- df %>%
@@ -33,26 +34,15 @@ get_author_info <-function(df){
   info_dois <- rcrossref::cr_works(dois = pull(list_doi, DOI))
   info_df_dois <- info_dois$data
 
-#--------
-  doi_finished <- data.frame(matrix(nrow = 0, ncol = 6))
-  doi_column_names <- c("Title", "Year", "Given", "Family", "Sequence", "DOI")
-  colnames(doi_finished) = doi_column_names
+  info_df_dois <- info_df_dois %>%
+    select(doi, title, author) %>%
+    tidyr::unnest(author) %>%
+   rename(DOI = doi)
 
-
-  # need to duplicate the rows for papers with multiple author entries	  for(entry in 1:nrow(list_doi)){
-  #this code is copied from non-DOI code below	    #pull the respective DOI
-  #if we pulled info from crossref	    entry_doi <- list_doi$DOI[entry]
-  if(!is.null(test_na_doi)){
-    print("we are on entry")
-    print(entry)
-
-    #get the info on the papers with DOIs from crossref
-    info_dois <- rcrossref::cr_works(dois = entry_doi)
-
-  }
-
-  ## questions: From doing this, we are getting the right authors but will the additional authors also be correct? How do DOI work?
-  ## in some there is affiliation.info_df_dois[[30]][[3]] in other there is not [[30]][[5]]
+  #this for some reason is not filling in for all the secondary authors, just the main author. filter doi 10.1348/014466610X524263 on view to see what I mean
+all_info_doi <- list_doi %>%
+  full_join(info_df_dois, by = "DOI",multiple = "all") %>%
+  rename(OG_Author = AUTHOR, OG_Title = TITLE, Date = DATE, Year = YEAR, OG_doi = DOI)
 
 #---------------------------
 
@@ -61,86 +51,82 @@ get_author_info <-function(df){
   na_list_doi <- df %>%
     filter(is.na(DOI))
 
+  #dataframe that will have all the previous information and a column for the author info from crossref(found_author)
+  finished <- data.frame(matrix(nrow = 0, ncol = 7))
+  column_names <- c("OG_Author","OG_Title","Date", "Year","OG_doi","index", "Found_author")
+  colnames(finished) = column_names
 
-finished <- data.frame(matrix(nrow = 0, ncol = 6))
-column_names <- c("Author","Title", "Year", "Given", "Family", "Sequence")
-colnames(finished) = column_names
-
+  # This is how you create dataframes that you can nest (and unnest) in a dataframe
+  not_found_df <- tibble(data = list(tibble(given ="No result matched" , family = "No result matched")))
+  inconclusive_df <- tibble(data = list(tibble(given ="Inconclusive" , family = "Inconclusive")))
 
 for(entry in 1:nrow(na_list_doi)){
-  #pull the author, title, date entries from the NA-DOI data
+  #pull the specific entries info from the original data to create a new table that contains both old and new info
   author <- na_list_doi$AUTHOR[entry]
   title <- na_list_doi$TITLE[entry]
-  date <- na_list_doi$YEAR[entry]
-
-  print("we are on entry")
-  print(entry)
-
-  print("author is ")
-  print(author)
+  date <- na_list_doi$DATE[entry]
+  year <- na_list_doi$YEAR[entry]
+  og_doi <- na_list_doi$DOI[entry]
+  index <- na_list_doi$index[entry]
 
   #test cases for the different available author/title info for each paper
-  #both title and author have values
-  test_na_doi <-   if (!is.na(author) & !is.na(title)){
+  test_na_doi <-   if (!is.na(author) & !is.na(title)){   #both title and author have values
     rcrossref::cr_works(flq = c(query.author = author, query.bibliographic = title), limit = 1,sort='relevance', select = c('DOI', 'title', 'author', 'created', 'published-print', 'published-online', 'publisher-location'))
-    #when the entry has a title and NA author
   }
-  else if(!is.na(title) & is.na(author)){
+  else if(!is.na(title) & is.na(author)){ #when the entry has a title and NA author
     rcrossref::cr_works(flq = c(query.bibliographic = title), limit = 1,sort='relevance', select = c('DOI', 'title', 'author', 'created', 'published-print', 'published-online', 'publisher-location'))
-    #when the entry has NA-value title and non-NA value author
   }
-  else if(is.na(title) & !is.na(author)){
-    NA
-  }#we only get the most relevant match based on rcrossref's `relevance` sorting. We do not check that the titles match each other.
-
-  print("test na doi is ")
-  print(test_na_doi)
+  else if(is.na(title) & !is.na(author)){ #when the entry has NA-value title and non-NA value author
+    NULL
+  }else{NULL}
 
 
-  #if we pulled info from crossref
+  #if the crossref return is not null
   if(!is.null(test_na_doi)){
 
     #get API payload
     data_returned <- test_na_doi$data
-    print("data returned is")
-    print(data_returned)
-
-    print("The author data is")
-    print(data_returned[[5]][[1]])
-
-    print("The dims are")
-    print(dim(data_returned))
-
-    print("The nrow is")
-    print(nrow(data_returned))
-
-
 
     # if the rcrossref returned no results, just add no results matched to that entry
     if(is.null(data_returned) | nrow(data_returned)== 0){ #is.null(dim(data_returned)). # we have to check for both cases, if we get a null return or if we get a return but it is empty
-      print("I am getting into the null dim if statement")
-      first_name <- "No result matched"
-      finished[nrow(finished) + 1,] = c(author, title, date, first_name, NA, NA)
+      finished[nrow(finished) + 1,] = c(author, title, date, year, og_doi, index, not_found_df)
       #move on to new entry
       next
     }
-
-    crossref_info <- data_returned[[5]][[1]]
-    #create a duplicate row for each author of the paper
-    for(contributor in 1:nrow(crossref_info)){
-      finished[nrow(finished) + 1,] = c(author, title, date, crossref_info[contributor,1],crossref_info[contributor,2], crossref_info[contributor,3])
+    else{
+    # Add a new row with the entry information and add the nested author table from crossref into the Foune_author column
+    finished[nrow(finished) + 1,] <- c(author, title, date, year, og_doi, index , NA)
+    finished[nrow(finished), ]$Found_author <-  data_returned$author
     }
   }
   else{
     #no information was gathered return NAs
-    first_name <- "inconclusive"
-    finished[nrow(finished) + 1,] = c(author, title, date, first_name, NA, NA)
+    finished[nrow(finished) + 1,] = c(author, title, date, year, og_doi,index, inconclusive_df)
   }
-  print("Last updated finished is")
-  print(finished)
-
 }
-#doi_no_doi_data <- rbind(finished, info_dois) #this is for when we get the list of names for the doi-present entries
+
+  #unnest the dataframe we got from crossref
+  all_info_non_doi <-  finished %>%
+    tidyr::unnest(Found_author) %>%
+    all_info_non_doi$Date <- as.numeric(all_info_non_doi$Date) %>%
+    all_info_non_doi$Year <- as.numeric(all_info_non_doi$Year) %>%
+    all_info_non_doi$index <- as.numeric(all_info_non_doi$index)
+
+  #bind both doi and non doi results together
+  full_results <- dplyr::bind_rows(all_info_doi, all_info_non_doi)
+
+  #for some reaason there is NA for index?
+  checkout <- full_results %>%
+    group_by(index) %>%
+    summarize(n = n())
+
+  hehe <- full_results %>%
+    filter(is.na(index))
+
 return(finished)
 }
+
+checking <- finished %>%
+  group_by(Author, Title) %>%
+  summarize(n = n())
 
