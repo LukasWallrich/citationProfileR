@@ -16,14 +16,9 @@ ui <- navbarPage(
   tabPanel(
     title = "Home",
 
-    shiny::fluidRow(
-      column(
-        width = 12,
-        h4("Graphs"),
-        # plotlyOutput("testPlot"),  #### try plotly
-        plotlyOutput("genderBarPlot")
-      )
-    ),
+    h4("Gender Breakdown Graph"),
+    # plotOutput("genderBarPlot"),
+    plotOutput("testPlot"),
 
     shiny::navlistPanel(
       # "Penguins",
@@ -37,7 +32,6 @@ ui <- navbarPage(
                htmltools::includeMarkdown(path = "help.md")
       )
     )
-
   ),
 
   # ### tab two -- upload pdf manuscripts
@@ -105,7 +99,6 @@ ui <- navbarPage(
   #   )
   #
   # )
-
 )
 
 
@@ -290,6 +283,21 @@ server <- function(input, output, session) {
 
 
   ### try plotly with shiny
+  ## bar 1
+  output$genderBarPlot <- renderPlotly({
+    dat1 <- data.frame(
+      gender = factor(c("Female", "Male", "Inconclusive")),
+      count = c(3, 5, 2)
+    )
+
+    bar <- ggplot(data=dat1, aes(x=gender, y=count)) +
+      geom_bar(stat="identity")
+
+    fig <- ggplotly(bar)
+    fig
+  })
+
+  ## bar 2
   output$testPlot <- renderPlotly({
     dat1 <- data.frame(
       sex = factor(c("Female","Female","Male","Male")),
@@ -305,21 +313,7 @@ server <- function(input, output, session) {
     fig
   })
 
-  output$genderBarPlot <- renderPlotly({
-    dat1 <- data.frame(
-      gender = factor(c("Female", "Male", "Inconclusive")),
-      count = c(3, 5, 2)
-    )
-
-    bar <- ggplot(data=dat1, aes(x=gender, y=count)) +
-      geom_bar(stat="identity")
-
-    fig <- ggplotly(bar)
-    fig
-  })
-
 }
 
 # Create Shiny app ----
 shinyApp(ui, server)
-
