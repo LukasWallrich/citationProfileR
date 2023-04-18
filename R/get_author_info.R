@@ -34,10 +34,15 @@ get_author_info <-function(df){
   info_dois <- rcrossref::cr_works(dois = pull(list_doi, DOI))
   info_df_dois <- info_dois$data
 
+
   info_df_dois <- info_df_dois %>%
     select(doi, title, author) %>%
     tidyr::unnest(author) %>%
    rename(DOI = doi)
+
+  # making the joining column lower to be able to match the info throughoutly and correctly
+  info_df_dois$DOI <- tolower(info_df_dois$DOI)
+  list_doi$DOI <- tolower(list_doi$DOI)
 
   #this for some reason is not filling in for all the secondary authors, just the main author. filter doi 10.1348/014466610X524263 on view to see what I mean
 all_info_doi <- list_doi %>%
@@ -128,3 +133,6 @@ return(finished)
 }
 
 
+Investigate <- all_info_doi %>%
+  group_by(OG_doi) %>%
+  summarize(n = n())
