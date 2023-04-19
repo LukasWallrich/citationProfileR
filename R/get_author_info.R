@@ -23,11 +23,11 @@ get_author_info <-function(df){
   df <- readr::read_csv("R/test_citations_table.csv")
   df <- df %>%
     dplyr::select('AUTHOR', 'TITLE', 'DATE', 'YEAR', 'DOI') %>%
-    mutate(index = row_number())
+    dplyr::mutate(index = row_number())
 
   #get the list of papers that have DOI's present
   list_doi <- df %>%
-    filter(!is.na(DOI))
+    dplyr::filter(!is.na(DOI))
 
 
   #get the info on the papers with DOIs from crossref
@@ -36,9 +36,9 @@ get_author_info <-function(df){
 
 
   info_df_dois <- info_df_dois %>%
-    select(doi, title, author) %>%
+    dplyr::select(doi, title, author) %>%
     tidyr::unnest(author) %>%
-   rename(DOI = doi)
+    dplyr::rename(DOI = doi)
 
   # making the joining column lower to be able to match the info throughoutly and correctly
   info_df_dois$DOI <- tolower(info_df_dois$DOI)
@@ -46,14 +46,14 @@ get_author_info <-function(df){
 
   #this for some reason is not filling in for all the secondary authors, just the main author. filter doi 10.1348/014466610X524263 on view to see what I mean
 all_info_doi <- list_doi %>%
-  full_join(info_df_dois, by = "DOI",multiple = "all") %>%
-  rename(OG_Author = AUTHOR, OG_Title = TITLE, Date = DATE, Year = YEAR, OG_doi = DOI)
+  dplyr::left_join(info_df_dois, by = "DOI",multiple = "all") %>%
+  dplyr::rename(OG_Author = AUTHOR, OG_Title = TITLE, Date = DATE, Year = YEAR, OG_doi = DOI)
 
 #---------------------------
 
   #get the list of papers that do not have DOIs
   na_list_doi <- df %>%
-    filter(is.na(DOI))
+    dplyr::filter(is.na(DOI))
 
   #dataframe that will have all the previous information and a column for the author info from crossref(found_author)
   finished <- data.frame(matrix(nrow = 0, ncol = 7))
@@ -61,8 +61,8 @@ all_info_doi <- list_doi %>%
   colnames(finished) = column_names
 
   # This is how you create dataframes that you can nest (and unnest) in a dataframe
-  not_found_df <- tibble(data = list(tibble(given ="No result matched" , family = "No result matched")))
-  inconclusive_df <- tibble(data = list(tibble(given ="Inconclusive" , family = "Inconclusive")))
+  not_found_df <- tibble::tibble(data = list(tibble(given ="No result matched" , family = "No result matched")))
+  inconclusive_df <- tibble::tibble(data = list(tibble(given ="Inconclusive" , family = "Inconclusive")))
 
 for(entry in 1:nrow(na_list_doi)){
   #pull the specific entries info from the original data to create a new table that contains both old and new info
@@ -123,11 +123,11 @@ for(entry in 1:nrow(na_list_doi)){
   #checking results
   #for some reaason there is NA for index?
   checkout <- full_results %>%
-    group_by(index) %>%
-    summarize(n = n())
+    dplyr::group_by(index) %>%
+    dplyr::summarize(n = n())
 # For some reason only some of the doi ones get all author's original info copied while these don't?
   index_na <- full_results %>%
-    filter(is.na(index))
+    dplyr::filter(is.na(index))
 
 return(finished)
 }
