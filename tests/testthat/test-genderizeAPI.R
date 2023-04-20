@@ -1,12 +1,11 @@
 
-df = "Rithika"
-key = "YYwMFujDM6M6GXUo2tVRgHE4J5E22ZNjj792"
-
-refs <- guess_gender(df, key, cache = TRUE)
-
 #Test to make sure every name is associated with a probability/ checks size and shape
 
 test_that("guessGender", {
+
+  refs <- guess_gender("Rithika")
+  refs <- guess_gender("Rithika", cache = TRUE)
+
   expect_equal(ncol(refs), 5)
   expect_equal(nrow(refs), 1)
 })
@@ -18,6 +17,8 @@ test_that("guessGender", {
 #expect_false from https://www.rdocumentation.org/packages/testthat/versions/0.11.0/topics/expect_true
 
 test_that("guessGender", {
+  refs <- guess_gender("Rithika", cache = FALSE)
+
   expect_false(any(refs[4] < 0), any(refs[4] > 100))
 })
 

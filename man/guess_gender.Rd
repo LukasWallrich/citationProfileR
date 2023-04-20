@@ -4,7 +4,7 @@
 \alias{guess_gender}
 \title{Guess a names' gender}
 \usage{
-guess_gender(name, key = "ucThdyFEbbTRNp2EhSx4UUn3kMKMThqthcnZ", cache = FALSE)
+guess_gender(name, key = NA, cache = FALSE)
 }
 \arguments{
 \item{name}{A name to look up.}
@@ -17,6 +17,6 @@ guess_gender(name, key = "ucThdyFEbbTRNp2EhSx4UUn3kMKMThqthcnZ", cache = FALSE)
 This function uses the https://gender-api.com/ API to supply estimates of the gender for one name.
 }
 \examples{
-guess_gender("Rithika", key = "ucThdyFEbbTRNp2EhSx4UUn3kMKMThqthcnZ")
+guess_gender("Rithika", key = "YYwMFujDM6M6GXUo2tVRgHE4J5E22ZNjj792")
 }
 \keyword{internal}

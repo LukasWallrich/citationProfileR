@@ -1,6 +1,20 @@
 # the following code is adapted from https://github.com/coccopuffs/GenderGuesser/blob/master/R/guessGender.R
 # but uses the gender-api from https://gender-api.com/ as the means to predict gender instead
 
+
+#' Users can replace the default API key with their own for the gender-api from https://gender-api.com/
+#'
+#' @param key A user's API key for https://gender-api.com/.
+#'
+#' @keywords internal
+#' @export
+#' @examples
+#' #replace_key(key)
+
+replace_key <- function(key) {
+  writeLines(key, con = "./api_keys")
+}
+
 #' Guess a names' gender
 #'
 #' This function uses the https://gender-api.com/ API to supply estimates of the gender for one name.
@@ -12,30 +26,20 @@
 #' @examples
 #'guess_gender("Rithika", key = "YYwMFujDM6M6GXUo2tVRgHE4J5E22ZNjj792")
 
-guess_gender <- function(name, key = "YYwMFujDM6M6GXUo2tVRgHE4J5E22ZNjj792", cache = FALSE) {
+guess_gender <- function(name, key = NA, cache = FALSE) {
 
-  #guess_gender_cache_env <- env(Rithika = guess_gender("Rithika", key = "YYwMFujDM6M6GXUo2tVRgHE4J5E22ZNjj792"))
-  #env_cache(guess_gender_cache_env, "Rithika", "default")
-  #Result:
-  #name gender samples accuracy duration
-  #1 rithika female     318       99     10ms
-
-  #name = "Raghu"
-  #guess_gender_cache_env <- env(name = guess_gender(name, key = "YYwMFujDM6M6GXUo2tVRgHE4J5E22ZNjj792"))
-  #env_cache(guess_gender_cache_env, "name", "default")
-  #Result
-  #name gender samples accuracy duration
-  #1 raghu   male    3349       99     11ms
+  if(is.na(key))
+  {
+    key = readLines("./api_keys")[1]
+  }
 
   query <- paste("name=", name, collapse = "&", "&key=", key, sep = "")
-  #queryResult <- httr::GET("https://gender-api.com/get?", query = query, httr::config(ssl_verifypeer = FALSE))
 
   if (cache == TRUE) {
     #if query in cache:
-    if (!is.na(rlang::env_cache(guess_gender_cache_env, name, "default"))) {
-      #get res from cache --> env_cache(guess_gender_cache_env, "name", "default") / guess_gender_cache_env$name
+    if (!is.null(rlang::env_get(guess_gender_cache_env, name, NA))) {
       #return res
-      return(guess_gender_cache_env$name)
+      return(guess_gender_cache_env[[name]])
     }
   }
 
@@ -67,9 +71,9 @@ guess_gender <- function(name, key = "YYwMFujDM6M6GXUo2tVRgHE4J5E22ZNjj792", cac
     }
 
     #store res in cache
-    guess_gender_cache_env <- rlang::env(name = responseDF)
+    rlang::env_cache(guess_gender_cache_env, nm = name, default = responseDF)
 
-    #return(guess_gender_cache_env$name)
-    return(rlang::env_cache(guess_gender_cache_env, name, default = responseDF))
+    return(guess_gender_cache_env[[name]])
   }
 }
+

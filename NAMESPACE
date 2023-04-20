@@ -2,4 +2,5 @@
 
 export("%>%")
 export(guess_gender)
+export(replace_key)
 importFrom(magrittr,"%>%")
