@@ -3,6 +3,7 @@
 
 <!-- badges: start -->
 [![R-CMD-check](https://github.com/LukasWallrich/citationProfileR/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/LukasWallrich/citationProfileR/actions/workflows/R-CMD-check.yaml)
+[![Codecov test coverage](https://codecov.io/gh/LukasWallrich/citationProfileR/branch/main/graph/badge.svg)](https://app.codecov.io/gh/LukasWallrich/citationProfileR?branch=main)
 <!-- badges: end -->
 
 
