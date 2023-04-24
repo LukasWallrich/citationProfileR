@@ -57,3 +57,6 @@ first_name_check <- function(df){
   full_df <- df[full_names_indeces,]
 
 }
+
+#should it be better if I actually make another column that says if we have to
+#look for the name in cross ref or just extract it somehow
