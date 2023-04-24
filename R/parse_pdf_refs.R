@@ -20,7 +20,7 @@ parse_pdf_refs <- function(file, save_to_file = NULL, GROBID_URL = "https://kerm
   api_url <- paste0(GROBID_URL, api)
 
   #input is required, API call to GROBID process Reference(https://grobid.readthedocs.io/en/latest/Grobid-service/)
-  GROBID <- httr::POST(api_url, accept("application/x-bibtex"),  body = list(input = httr::upload_file(file)), encode = "multipart")#, verbose())
+  GROBID <- httr::POST(api_url, httr::accept("application/x-bibtex"),  body = list(input = httr::upload_file(file)), encode = "multipart")#, verbose())
 
   # translate return from Raw to Characters
   output <- rawToChar(GROBID$content)
@@ -40,5 +40,11 @@ parse_pdf_refs <- function(file, save_to_file = NULL, GROBID_URL = "https://kerm
 
   res <- bib2df::bib2df(save_to_file) %>%
     bbr::collapse_to_string(where(is.list))
+
+  res <- res %>%
+    dplyr::mutate(index = row_number())
+
   return(res)
 }
+
+hahaha <- parse_pdf_refs("/Users/adrianabeltran/Downloads/Wallrich_et al_2020.pdf")
