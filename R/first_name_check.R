@@ -1,8 +1,13 @@
 
+#' First Name Check
+#'
+#' @param df: A data frame that has the extracted citations from the pdf using GROBID
+#'
+#' @return a list with two data frames: The first index is entries that have abreviated authors and the second has author's first name
+#' @export
+#'
+#' @examples
 first_name_check <- function(df){
-
-  df <- readr::read_csv("R/test_citations_table.csv")
-
   split_trans <- function(x){
     # removing the spaces so they do not count on vector length
     x <- gsub(" ", "",x)
@@ -31,10 +36,13 @@ first_name_check <- function(df){
     }
     #find ones in list and see how many are there in the list
     amount_of_ones <- c(1) %in% x
+    print(amount_of_ones)
+    #print("amount of ones is ", amount_of_ones)
     ones_present <- length(amount_of_ones)
+    print(ones_present)
 
-    #if zero 1 found, return false
-    if(ones_present == 0 ){
+    # if there are no abbreviations (ones_present !-0) or none in amoun
+    if(ones_present == 0 || amount_of_ones == FALSE ){
       FALSE
     }
     else{
@@ -56,7 +64,11 @@ first_name_check <- function(df){
 
   full_df <- df[full_names_indeces,]
 
+  return(list(abbrev_df, full_df))
 }
 
+full_name_paper <- read_csv("R/Johanna_Moderation_not_abbrev")
+
+lol <- first_name_check(full_name_paper)
 #should it be better if I actually make another column that says if we have to
 #look for the name in cross ref or just extract it somehow
