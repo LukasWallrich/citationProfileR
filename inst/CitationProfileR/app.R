@@ -89,8 +89,8 @@ ui <- navbarPage(
         h4("Download Your Analysis Report"),
         mainPanel(
           downloadButton(
-            outputId = "downloadAnalysis",
-            label = "Download PDF"
+            outputId = "downloadReport",
+            label = "Download Diversity Report PDF"
           )
         )
       )
@@ -280,11 +280,15 @@ server <- function(input, output, session) {
   #   }
   # )
 
+  f_count <- 5
+  m_count <- 8
+  i_count <- 3
+
   ### try plotly with shiny
   output$genderBarPlot <- renderPlotly({
     df <- data.frame(
       gender = c("Female", "Male", "Inconclusive"),
-      count = c(3, 5, 2)
+      count = c(f_count, m_count, i_count)
     )
 
     df$gender <- factor(df$gender, levels = df$gender)
@@ -296,6 +300,28 @@ server <- function(input, output, session) {
     fig
   })
 
+
+  # Downloadable diversity report pdf
+  output$downloadReport <- downloadHandler(
+    filename = function() {
+      paste("diversity-report-", Sys.Date(), ".pdf", sep="")
+    },
+
+    content = function(file) {
+      # code below is from https://shiny.rstudio.com/articles/generating-reports.html
+      tempReport <- file.path(tempdir(), "report.Rmd")
+      file.copy("diversity_report_template.Rmd", tempReport, overwrite = TRUE)
+
+      params <- list(f = f_count,
+                     m = m_count,
+                     i = i_count)
+
+      rmarkdown::render(tempReport, output_file = file,
+                        params = params,
+                        envir = new.env(parent = globalenv())
+      )
+    }
+  )
 }
 
 # Create Shiny app ----
