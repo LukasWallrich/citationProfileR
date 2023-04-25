@@ -37,23 +37,26 @@ get_location <- function(df_with_affiliation){
           OSM_affiliation_returned <- geocode_OSM(affiliation)
 
           #print(c("OSM affiliation returned is"), OSM_affiliation_returned$coords["x"])
+
           #if OSM does not return a geolocation, try to split according to commas, then
           if(is.null(OSM_affiliation_returned)){
             #move onto the next entry
-            #TO DO
             print("No OSM data returned")
             crossref_data$country_code[entry] <-  NA
             next
 
           }else{
             #if the OSM returns a geolocation, get the country code using OSM
+            print("I am in the location list place")
             location_list <- rev_geocode_OSM(OSM_affiliation_returned$coords["x"], OSM_affiliation_returned$coords["y"])
-
+            print("I got the location list")
             #Get the country code of the affiliation
             list_country_code <- location_list[[1]]$country_code
-
+            print(c("I got the list_country_code", list_country_code))
             #add this country code to the respective column
-            crossref_data[nrow(crossref_data), ]$country_code <-  list_country_code
+            crossref_data[nrow(crossref_data), ]$country_code <-  list_country_code #RIGHT HERE THE LOCATION CODE DOES NOT GET ADDED TO THE COLUMN
+            print(crossref_data[nrow(crossref_data), ]$country_code )
+            next
           }
         }else{
           #print(c("I already got the country code from `countrycode`"), countrycode_pkg_return)
