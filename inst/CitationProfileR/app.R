@@ -38,13 +38,18 @@ ui <- navbarPage(
       # style = "border: 1px solid black;",
       column(
         width = 12,
-        h4("Upload your citation files"),
+        h4("Upload your paper"),
         shiny::fileInput(
-          inputId = "citationFile",
+          inputId = "paper",
           label = NULL,
-          multiple = TRUE,
+          multiple = FALSE,
           accept = c(".pdf"),
           buttonLabel = "Browse"
+        ),
+
+        shiny::downloadButton(
+          outputId = "uploadfile",
+          label = "Download the file you just uploaded LOL"
         )
       )
     )
@@ -104,6 +109,27 @@ ui <- navbarPage(
 ################### Define server logic to read selected file ###################
 server <- function(input, output, session) {
 
+  ### tab two -- upload pdf manuscripts
+
+  # not working......
+  upload <- reactive({
+    file <- input$paper
+    ext <- tools::file_ext(file$datapath)
+    req(file)
+    validate(need(ext == "pdf", "Please upload a pdf file"))
+  })
+
+  # test upload successful
+  output$uploadfile <- downloadHandler(
+    filename = "upload.pdf",
+    content = file
+  )
+
+  ### tab three -- process data and download dataset
+
+
+
+  ### tab four -- analysis report
   names <- c("Alex", "Jordan", "Casey", "Tom", "Grace", "Cindy", "Robert")
 
   f_count <- 0
@@ -121,7 +147,7 @@ server <- function(input, output, session) {
     }
   }
 
-  ### try plotly with shiny
+  # gender breakdown barplot
   output$genderBarPlot <- renderPlotly({
     df <- data.frame(
       gender = c("Female", "Male", "Inconclusive"),
@@ -136,7 +162,6 @@ server <- function(input, output, session) {
     fig <- ggplotly(bar)
     fig
   })
-
 
   # Downloadable diversity report pdf
   output$downloadReport <- downloadHandler(
