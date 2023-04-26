@@ -23,10 +23,11 @@ Imports:
     rlang,
     bib2df,
     dplyr,
-    tidyselect
+    tidyselect,
+    bbr
+Remotes:
+    github::metrumresearchgroup/bbr
 Suggests: 
     covr,
     testthat (>= 3.0.0)
-Remotes:
-    metrumresearchgroup/bbr
 Config/testthat/edition: 3
