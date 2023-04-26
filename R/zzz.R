@@ -5,10 +5,11 @@
   pkglist <- list(
     c(name='bbr',url='metrumresearchgroup/bbr'))
 
-  for(pkg in pkglist)
+  for(pkg in pkglist){
     if(!suppressWarnings(suppressPackageStartupMessages(require(pkg['name'],
                                                                 quietly=TRUE,character.only=TRUE)))){
       devtools::install_github(pkg['url'])
       suppressPackageStartupMessages( library(pkg['name'],character.only=TRUE))
     }
+  }
 }
