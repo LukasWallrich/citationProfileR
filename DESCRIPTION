@@ -20,7 +20,15 @@ Imports:
     magrittr,
     httr,
     jsonlite,
-    rlang
+    rlang,
+    bib2df,
+    dplyr,
+    tidyselect,
+    purrr,
+    checkmate,
+    glue,
+    utils,
+    shinyFeedback
 Suggests: 
     covr,
     testthat (>= 3.0.0)

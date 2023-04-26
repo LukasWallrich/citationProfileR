@@ -35,16 +35,24 @@ ui <- navbarPage(
   tabPanel(
     title = "Upload",
     shiny::fluidRow(
+      #allow for input validation HTML/CSS styling
+      shinyFeedback::useShinyFeedback(),
       # style = "border: 1px solid black;",
       column(
         width = 12,
-        h4("Upload your citation files"),
+        h4("Upload your paper"),
         shiny::fileInput(
-          inputId = "citationFile",
+          inputId = "paper",
           label = NULL,
-          multiple = TRUE,
+          multiple = FALSE,
           accept = c(".pdf"),
           buttonLabel = "Browse"
+        ),
+        textOutput("pdf_confirmation"),
+        tableOutput("extracted_table"),
+        shiny::downloadButton(
+          outputId = "redownload",
+          label = "Download the file you just uploaded LOL"
         )
       )
     )
@@ -52,6 +60,7 @@ ui <- navbarPage(
   ),
 
   ### tab three -- process data and download dataset
+  ##############
   tabPanel(
     title = "Citation Data",
 
@@ -70,8 +79,9 @@ ui <- navbarPage(
       )
     )
   ),
-
+  #########
   ### tab four -- analysis report
+  #####################
   tabPanel(
     title = "Analysis",
     shiny::fluidRow(
@@ -82,7 +92,9 @@ ui <- navbarPage(
       )
     ),
 
-    # download analysis
+  ################
+  ### download analysis
+  ##############
     shiny::fluidRow(
       column(
         width = 12,
@@ -104,6 +116,48 @@ ui <- navbarPage(
 ################### Define server logic to read selected file ###################
 server <- function(input, output, session) {
 
+  ### tab two -- upload pdf manuscripts
+  ## Where we will hold the df that we will pass to tab 3
+  citation_data <- reactiveVal()
+  observeEvent(input$paper, {
+
+    #verify that the file upload is pdf kind
+    not_pdf <- tools::file_ext(input$paper$name) != "pdf"
+    if(not_pdf){
+      shinyFeedback::feedbackWarning("paper", not_pdf , "Please select a pdf")
+      return(NULL)
+    }
+    req(!not_pdf)
+
+    #Confirm to user that file has been received
+    output$pdf_confirmation <- renderPrint({
+      paste("File uploaded:", input$paper$name)
+    })
+
+    # extract the citations
+    uploaded_paper <- input$paper$datapath
+    citation_data(parse_pdf_refs(uploaded_paper))
+    # for testing we can display the table of extracted citations if contents is uncommented in UI
+    output$extracted_table <- renderTable(citation_data())
+
+    # test upload successful with a redownload (already tested above with extracted table output so notfully needed)
+    output$redownload <- downloadHandler(
+      filename =  function() {
+        paste(input$paper$name,".pdf", sep="")
+      },
+      content = function(file) {
+        file.copy(uploaded_paper, file)
+      },
+      contentType = "application/pdf"
+    )
+  })
+
+
+  ### tab three -- process data and download dataset
+
+
+
+  ### tab four -- analysis report
   names <- c("Alex", "Jordan", "Casey", "Tom", "Grace", "Cindy", "Robert")
 
   f_count <- 0
@@ -121,7 +175,8 @@ server <- function(input, output, session) {
     }
   }
 
-  ### try plotly with shiny
+  # gender breakdown barplot
+  ##################
   output$genderBarPlot <- renderPlotly({
     df <- data.frame(
       gender = c("Female", "Male", "Inconclusive"),
@@ -136,7 +191,6 @@ server <- function(input, output, session) {
     fig <- ggplotly(bar)
     fig
   })
-
 
   # Downloadable diversity report pdf
   output$downloadReport <- downloadHandler(
@@ -159,6 +213,7 @@ server <- function(input, output, session) {
       )
     }
   )
+  ######################
 }
 
 # Create Shiny app ----
