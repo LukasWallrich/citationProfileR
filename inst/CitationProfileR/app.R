@@ -117,10 +117,11 @@ ui <- navbarPage(
 server <- function(input, output, session) {
 
   ### tab two -- upload pdf manuscripts
+  ## Where we will hold the df that we will pass to tab 3
+  citation_data <- reactiveVal()
   observeEvent(input$paper, {
 
     #verify that the file upload is pdf kind
-
     not_pdf <- tools::file_ext(input$paper$name) != "pdf"
     if(not_pdf){
       shinyFeedback::feedbackWarning("paper", not_pdf , "Please select a pdf")
@@ -135,10 +136,9 @@ server <- function(input, output, session) {
 
     # extract the citations
     uploaded_paper <- input$paper$datapath
-    df <- parse_pdf_refs(uploaded_paper)
-
+    citation_data(parse_pdf_refs(uploaded_paper))
     # for testing we can display the table of extracted citations if contents is uncommented in UI
-    output$extracted_table <- renderTable(df)
+    output$extracted_table <- renderTable(citation_data())
 
     # test upload successful with a redownload (already tested above with extracted table output so notfully needed)
     output$redownload <- downloadHandler(
