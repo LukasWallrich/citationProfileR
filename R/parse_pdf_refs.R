@@ -49,5 +49,3 @@ parse_pdf_refs <- function(file, save_to_file = NULL, GROBID_URL = "https://kerm
 
   return(res)
 }
-
-hahaha <- parse_pdf_refs("/Users/adrianabeltran/Downloads/Wallrich_et al_2020.pdf")
