@@ -28,7 +28,9 @@ Imports:
     dplyr,
     tidyselect,
     bbr,
-    devtools
+    devtools,
+    purrr,
+    checkmate
 Suggests: 
     covr,
     testthat (>= 3.0.0)

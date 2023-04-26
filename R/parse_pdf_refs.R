@@ -1,3 +1,40 @@
+# Copyright (c) 2020 Metrum Research Group under the MIT licence
+# Retrieved from https://github.com/metrumresearchgroup/bbr/blob/main/LICENSE.md
+collapse_to_string <- function(.data, ..., .sep = ", ") {
+  checkmate::assert_scalar(.sep)
+
+  cols <- tidyselect::eval_select(rlang::expr(c(...)), .data)
+
+  # subset to only list cols and warn if passed any columns that are not lists
+  valid_cols <- purrr::map_lgl(cols, ~ inherits(.data[[.x]], "list"))
+  if (any(!valid_cols)) {
+    bad_cols <- names(valid_cols)[!valid_cols]
+    warning(glue("collapse_to_string() only works on list columns. The following columns are not lists and will be ignored: {paste(bad_cols, collapse = ', ')}"))
+  }
+  cols <- cols[valid_cols]
+
+  # collapse together any lists of vectors
+  .data %>%
+    purrr::modify_at(.at = cols, .f = function(x) {
+      purrr::map_chr(x, .f = function(.vec) {
+        if (inherits(.vec, c("character", "numeric", "logical"))) {
+          .vec <- paste0(.vec, collapse = .sep)
+        } else if (is.null(.vec)) {
+          .vec <- NA_character_
+        } else {
+          .vec <- paste(
+            capture.output(dput(.vec)),
+            collapse = ""
+          )
+        }
+        return(.vec)
+      })
+    })
+}
+
+
+
+
 #' Parse PDF references
 #'
 #' Parse references in a PDF file using GROBID
@@ -42,7 +79,7 @@ parse_pdf_refs <- function(file, save_to_file = NULL, GROBID_URL = "https://kerm
   }
 
   res <- bib2df::bib2df(save_to_file) |>
-    bbr::collapse_to_string(tidyselect::where(is.list))
+    collapse_to_string(tidyselect::where(is.list))
 
   res <- res |>
     dplyr::mutate(index = dplyr::row_number())
