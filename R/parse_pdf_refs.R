@@ -8,9 +8,12 @@
 #' @return dataframe with references
 #' @export
 #' @examples
-#' parse_pdf_refs("file.pdf")
-#' parse_pdf_refs("file.pdf", "file.bib")
-#' parse_pdf_refs("file.pdf", "file.bib", "https://kermitt2-grobid.hf.space")
+#' file_path <- system.file("test-data", "Wallrich_et_al_2020.pdf", package = "CitationProfileR")
+#' parse_pdf_refs(file_path)
+#' \dontrun{
+#'parse_pdf_refs(file_path, "file.bib")
+#'parse_pdf_refs(file_path, "file.bib", "https://kermitt2-grobid.hf.space")
+#'}
 
 # original grobid URL gave 'temporary' 302 redirect to url below - so might need to revert to 'https://cloud.science-miner.com/grobid'
 parse_pdf_refs <- function(file, save_to_file = NULL, GROBID_URL = "https://kermitt2-grobid.hf.space") {
@@ -38,11 +41,11 @@ parse_pdf_refs <- function(file, save_to_file = NULL, GROBID_URL = "https://kerm
     return(data.frame())
   }
 
-  res <- bib2df::bib2df(save_to_file) %>%
-    bbr::collapse_to_string(where(is.list))
+  res <- bib2df::bib2df(save_to_file) |>
+    bbr::collapse_to_string(tidyselect::where(is.list))
 
-  res <- res %>%
-    dplyr::mutate(index = row_number())
+  res <- res |>
+    dplyr::mutate(index = dplyr::row_number())
 
   return(res)
 }
