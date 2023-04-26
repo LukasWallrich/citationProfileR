@@ -2,5 +2,6 @@
 
 export("%>%")
 export(guess_gender)
+export(parse_pdf_refs)
 export(replace_key)
 importFrom(magrittr,"%>%")
