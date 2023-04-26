@@ -21,7 +21,6 @@ Imports:
     httr,
     jsonlite,
     rlang,
-    tidyverse,
     bib2df,
     bbr,
     dplyr,
