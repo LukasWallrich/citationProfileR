@@ -22,10 +22,11 @@ Imports:
     jsonlite,
     rlang,
     bib2df,
-    BBI,
     dplyr,
     tidyselect
 Suggests: 
     covr,
     testthat (>= 3.0.0)
+Remotes:
+    metrumresearchgroup/bbr
 Config/testthat/edition: 3
