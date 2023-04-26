@@ -22,7 +22,7 @@ Imports:
     jsonlite,
     rlang,
     bib2df,
-    bbr,
+    BBI,
     dplyr,
     tidyselect
 Suggests: 
