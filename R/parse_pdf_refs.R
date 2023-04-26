@@ -9,7 +9,7 @@ collapse_to_string <- function(.data, ..., .sep = ", ") {
   valid_cols <- purrr::map_lgl(cols, ~ inherits(.data[[.x]], "list"))
   if (any(!valid_cols)) {
     bad_cols <- names(valid_cols)[!valid_cols]
-    warning(glue("collapse_to_string() only works on list columns. The following columns are not lists and will be ignored: {paste(bad_cols, collapse = ', ')}"))
+    warning(glue::glue("collapse_to_string() only works on list columns. The following columns are not lists and will be ignored: {paste(bad_cols, collapse = ', ')}"))
   }
   cols <- cols[valid_cols]
 
@@ -23,7 +23,7 @@ collapse_to_string <- function(.data, ..., .sep = ", ") {
           .vec <- NA_character_
         } else {
           .vec <- paste(
-            capture.output(dput(.vec)),
+            utils::capture.output(dput(.vec)),
             collapse = ""
           )
         }
