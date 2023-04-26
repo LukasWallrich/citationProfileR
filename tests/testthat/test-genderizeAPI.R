@@ -3,8 +3,8 @@
 
 test_that("guessGender", {
 
-  refs <- guess_gender("Rithika")
-  refs <- guess_gender("Rithika", cache = TRUE)
+  refs <- guess_gender("Rithika", "US")
+  refs <- guess_gender("Rithika", "US", cache = TRUE)
 
   expect_equal(ncol(refs), 6)
   expect_equal(nrow(refs), 1)
@@ -17,7 +17,7 @@ test_that("guessGender", {
 #expect_false from https://www.rdocumentation.org/packages/testthat/versions/0.11.0/topics/expect_true
 
 test_that("guessGender", {
-  refs <- guess_gender("Rithika", cache = FALSE)
+  refs <- guess_gender("Rithika", "US", cache = FALSE)
 
   expect_false(any(refs[4] < 0), any(refs[4] > 100))
 })

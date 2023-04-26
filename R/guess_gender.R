@@ -24,16 +24,16 @@ replace_key <- function(key) {
 #' @keywords internal
 #' @export
 #' @examples
-#'guess_gender("Rithika", countrycode = "DE", key = "9KyNwgkTTtV4tqgzUWCMXoC6lSNz2ASzTtTd")
+#'guess_gender("Rithika", "US")
 
-guess_gender <- function(name, countrycode = NA, key = NA, cache = FALSE) {
+guess_gender <- function(name, countrycode = countrycode, key = NA, cache = FALSE) {
 
   if(is.na(key))
   {
     key = readLines("./api_keys")[1]
   }
 
-  query <- paste("name=", name, "&country=", countrycode, "&key=", key, collapse = "&", sep = "")
+  query <- paste("name=", name, collapse = "&", "&country=", countrycode, "&key=", key, sep = "")
 
   if (cache == TRUE) {
     #if query in cache:
@@ -74,7 +74,7 @@ guess_gender <- function(name, countrycode = NA, key = NA, cache = FALSE) {
     #store res in cache
     rlang::env_cache(guess_gender_cache_env, nm = name, default = responseDF)
 
-    return(guess_gender_cache_env[[name]])
+    return(responseDF)
   }
 }
 
