@@ -6,7 +6,7 @@ test_that("guessGender", {
   refs <- guess_gender("Rithika")
   refs <- guess_gender("Rithika", cache = TRUE)
 
-  expect_equal(ncol(refs), 5)
+  expect_equal(ncol(refs), 6)
   expect_equal(nrow(refs), 1)
 })
 

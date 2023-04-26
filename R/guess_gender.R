@@ -24,16 +24,16 @@ replace_key <- function(key) {
 #' @keywords internal
 #' @export
 #' @examples
-#'guess_gender("Rithika", key = "YYwMFujDM6M6GXUo2tVRgHE4J5E22ZNjj792")
+#'guess_gender("Rithika", countrycode = "DE", key = "9KyNwgkTTtV4tqgzUWCMXoC6lSNz2ASzTtTd")
 
-guess_gender <- function(name, key = NA, cache = FALSE) {
+guess_gender <- function(name, countrycode = NA, key = NA, cache = FALSE) {
 
   if(is.na(key))
   {
     key = readLines("./api_keys")[1]
   }
 
-  query <- paste("name=", name, collapse = "&", "&key=", key, sep = "")
+  query <- paste("name=", name, "&country=", countrycode, "&key=", key, collapse = "&", sep = "")
 
   if (cache == TRUE) {
     #if query in cache:
@@ -51,6 +51,7 @@ guess_gender <- function(name, key = NA, cache = FALSE) {
       responseFromJSON <- jsonlite::fromJSON(httr::content(queryResult, as = "text"))
       responseDF <- data.frame(name = responseFromJSON[["name"]],
                                gender = responseFromJSON[["gender"]],
+                               countrycode,
                                samples = responseFromJSON[["samples"]],
                                accuracy = responseFromJSON[["accuracy"]],
                                duration = responseFromJSON[["duration"]],
