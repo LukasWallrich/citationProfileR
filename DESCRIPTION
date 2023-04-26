@@ -27,7 +27,8 @@ Imports:
     purrr,
     checkmate,
     glue,
-    utils
+    utils,
+    shinyFeedback
 Suggests: 
     covr,
     testthat (>= 3.0.0)
