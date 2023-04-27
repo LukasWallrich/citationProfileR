@@ -28,7 +28,11 @@ Imports:
     checkmate,
     glue,
     utils,
-    shinyFeedback
+    shinyFeedback, 
+    readr,
+    rcrossref,
+    tibble,
+    tidyr
 Suggests: 
     covr,
     testthat (>= 3.0.0)
