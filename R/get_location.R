@@ -1,4 +1,3 @@
-
 #' get_location
 #'
 #' @return
@@ -9,7 +8,6 @@
 # load library(tmaptools)
 #load library(tidyverse), library(countrycode), library(purrr)
 
-#affiliation name must be string
 get_location <- function(df_with_affiliation){
 
   #load in the sample result from the crossref_api()
@@ -57,23 +55,29 @@ get_location <- function(df_with_affiliation){
                                     substr(affiliation, 1, nchar(affiliation)-1),
                                     affiliation)
 
-              #If there’s 1 comma present, I will pass the phrase after the 1 comma into OSM
-
-
-              #If 2 commas are present, I will choose the phrase after the 2 comma.
-              #If 3 commas are present, I will choose the phrase after 3 commas.
-              #If 4 are present, I will choose the phrase after 4 commas.
-              #if n>4 are present, I will choose the phrase after n commas.
+              #if n commmas are present, I will choose the phrase after n commas.
+              last_phrase <- substr(affiliation, last_comma_location+1, nchar(affiliation))
+              #get the OSM location
+              OSM_last_phrase <- geocode_OSM(last_phrase)
+              #if OSM location exists for the last phrase, get the lcoation name
+              if(!is.null(OSM_last_phrase)){
+                #get the location list
+                last_phrase_location <- rev_geocode_OSM(OSM_last_phrase$coords["x"], OSM_last_phrase$coords["y"])
+                #get the location code
+                last_phrase_country_code <- last_phrase_location[[1]]$country_code
+                crossref_data$country_code[entry] <-  toupper(last_phrase_country_code)
+                next
+              }else{#if after comma splitting OSM does not return anything
+                #put NA in the entry
+                crossref_data$country_code[entry] <-  NA
+                next
+              }
 
             }else{# if the affiliation has no commas and OSM does not return anything
               #put NA into this entry and move to the next one
               crossref_data$country_code[entry] <-  NA
               next
             }
-
-
-
-
 
           }else{
             #if the OSM returns a geolocation, get the country code using OSM
@@ -104,12 +108,4 @@ get_location <- function(df_with_affiliation){
   }#for loop
 
 
-
-
-}
-loc <- geocode_OSM("University of Osnabrück, Germany")
-location_list <- rev_geocode_OSM(loc$coords["x"], loc$coords["y"])
-
-
-
-location_list[[1]]$country_code
+}#function
