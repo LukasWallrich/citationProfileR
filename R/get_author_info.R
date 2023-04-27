@@ -11,8 +11,9 @@ get_author_info <-function(df){
   Found_author <- NULL
   #selecting the important things
   df <- df %>%
-    dplyr::select('AUTHOR', 'TITLE', 'DATE', 'YEAR', 'DOI', "index")
+    dplyr::select('AUTHOR', 'TITLE', 'DATE', 'YEAR', 'DOI', 'index')
 
+  #return(1)
   #get the list of papers that have DOI's present
   list_doi <- df %>%
     dplyr::filter(!is.na(df$DOI))
@@ -105,6 +106,13 @@ for(entry in 1:nrow(na_list_doi)){
     all_info_non_doi$Date <- as.numeric(all_info_non_doi$Date)
     all_info_non_doi$Year <- as.numeric(all_info_non_doi$Year)
     all_info_non_doi$index <- as.numeric(all_info_non_doi$index)
+
+    # extract 4 consecutive numbers to a year with regex
+    #
+
+    all_info_doi$Date <- as.numeric(all_info_doi$Date)
+    all_info_doi$Year <- as.numeric(all_info_doi$Year)
+    all_info_doi$index <- as.numeric(all_info_doi$index)
 
   #bind both doi and non doi results together
   full_results <- dplyr::bind_rows(all_info_doi, all_info_non_doi)
