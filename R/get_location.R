@@ -1,6 +1,8 @@
 #' get_location
 #'
-#' @return
+#' @param df_with_affiliation Data frame containing affiliations
+#'
+#' @return Dataframe with country names and country codes based on the inputted affiliation
 #' @export
 #'
 #' @examples
@@ -132,7 +134,6 @@ get_location <- function(df_with_affiliation){
       next
     }
   }#for loop
-  #TO DO: Once all the country codes are ready, add a new column that converts code to country name
 
 
 return(crossref_data)
