@@ -1,0 +1,25 @@
+---
+title: "Diversity Report"
+output: pdf_document
+params:
+  f: NA
+  m: NA
+  i: NA
+---
+
+There are `r toString(params$f)` female names.  
+There are `r toString(params$m)` male names.  
+There are `r toString(params$i)` inconclusive names.
+
+```{r, echo=FALSE}
+df <- data.frame(
+      gender = c("Female", "Male", "Inconclusive"),
+      count = c(params$f, params$m, params$i)
+    )
+
+df$gender <- factor(df$gender, levels = df$gender)
+
+ggplot(data=df, aes(x=gender, y=count)) +
+  geom_bar(stat="identity")
+```
+
