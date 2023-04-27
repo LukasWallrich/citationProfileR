@@ -27,7 +27,7 @@ get_author_info <-function(df){
 
 
   info_df_dois <- info_df_dois %>%
-    dplyr::select("doi", "title", "author") %>%
+    dplyr::select('doi', 'title', 'author') %>%
     tidyr::unnest(author) %>%
     dplyr::rename(DOI = "doi")
 
@@ -112,14 +112,6 @@ for(entry in 1:nrow(na_list_doi)){
   #bind both doi and non doi results together
   full_results <- dplyr::bind_rows(all_info_doi, all_info_non_doi)
 
-  #checking results
-  #for some reaason there is NA for index?
-#   checkout <- full_results %>%
-#     dplyr::group_by(index) %>%
-#     dplyr::summarize(n = n())
-# # For some reason only some of the doi ones get all author's original info copied while these don't?
-#   index_na <- full_results %>%
-#     dplyr::filter(is.na(index))
 
 return(full_results)
 }
