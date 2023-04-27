@@ -20,7 +20,8 @@ replace_key <- function(key) {
 #' This function uses the https://gender-api.com/ API to supply estimates of the gender for one name.
 #' @param name A name to look up.
 #' @param key An optional API key for https://gender-api.com/.
-#' @param cache (logical) local cache to avoid similar request combinations repeating
+#' @param cache (logical) local cache to avoid similar request combinations repeating.
+#' @param countrycode The country code that the user inputs.
 #' @keywords internal
 #' @export
 #' @examples
