@@ -40,12 +40,40 @@ get_location <- function(df_with_affiliation){
 
           #if OSM does not return a geolocation, try to split according to commas
           if(is.null(OSM_affiliation_returned)){
-            #ADD THE COMMA SPLITTING HERE
+            #cases to test -- row 36 Centre for Social Investigation, Nuffield College, University of Oxford, Oxford, UK
 
-            #move onto the next entry
             print("No OSM data returned, now checking the comma splitting")
-            crossref_data$country_code[entry] <-  NA
-            next
+
+            #if the affiliation has any commas, proceed to comma splitting
+            if(str_count(affiliation, ",") > 0){
+              #count the number of commas present in a affiliation phrase
+              num_commas <- str_count(affiliation, ",")
+
+              #find the location of the last comma
+              locations_all_commas <- str_locate_all(pattern = ",", affiliation)
+              last_comma_location <- max(locations_all_commas[[1]])
+              #if the phrase has a comma in the end and nothing after, get rid of the comma, update affiliation
+              affiliation <- ifelse(last_comma_location == nchar(affiliation),
+                                    substr(affiliation, 1, nchar(affiliation)-1),
+                                    affiliation)
+
+              #If there’s 1 comma present, I will pass the phrase after the 1 comma into OSM
+
+
+              #If 2 commas are present, I will choose the phrase after the 2 comma.
+              #If 3 commas are present, I will choose the phrase after 3 commas.
+              #If 4 are present, I will choose the phrase after 4 commas.
+              #if n>4 are present, I will choose the phrase after n commas.
+
+            }else{# if the affiliation has no commas and OSM does not return anything
+              #put NA into this entry and move to the next one
+              crossref_data$country_code[entry] <-  NA
+              next
+            }
+
+
+
+
 
           }else{
             #if the OSM returns a geolocation, get the country code using OSM
