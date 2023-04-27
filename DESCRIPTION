@@ -29,7 +29,8 @@ Imports:
     glue,
     utils,
     shinyFeedback, 
-    readr
+    readr,
+    rcrossref
 Suggests: 
     covr,
     testthat (>= 3.0.0)
