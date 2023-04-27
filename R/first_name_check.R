@@ -1,7 +1,7 @@
 
 #' First Name Check
 #'
-#' @param df: A data frame that has the extracted citations from the pdf using GROBID
+#' @param df A data frame that has the extracted citations from the pdf using GROBID
 #'
 #' @return a list with two data frames: The first index is entries that have abreviated authors and the second has author's first name
 #' @export
@@ -22,11 +22,11 @@ first_name_check <- function(df){
     char_length <- function(split){nchar(split)}
 
     #get character length for each vector
-    map(split, char_length)
+    purrr::map(split, char_length)
   }
 
   #gets the length of each split section (split using commas)
-  split <- map(df$AUTHOR, split_trans)
+  split <- purrr::map(df$AUTHOR, split_trans)
 
   # returns True if there are 1 length values in the author entries
   if_abbrev <- function(x){
@@ -51,7 +51,7 @@ first_name_check <- function(df){
   }
 
   # vector containing TRUE if there is an abbreviated author
-  abbrev_bool <- map(split, if_abbrev)
+  abbrev_bool <- purrr::map(split, if_abbrev)
 
   #getting the indices of where there is abbreviated authors
   abbrev_indices <- which(abbrev_bool == TRUE)
@@ -67,8 +67,8 @@ first_name_check <- function(df){
   return(list(abbrev_df, full_df))
 }
 
-full_name_paper <- read_csv("R/Johanna_Moderation_not_abbrev")
+#full_name_paper <- readr::read_csv("R/Johanna_Moderation_not_abbrev")
 
-lol <- first_name_check(full_name_paper)
+#lol <- first_name_check(full_name_paper)
 #should it be better if I actually make another column that says if we have to
 #look for the name in cross ref or just extract it somehow
