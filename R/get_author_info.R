@@ -13,6 +13,7 @@ get_author_info <-function(df){
   #binding global variables for this function
   Found_author <- NULL
   #selecting the important things
+  df <- readr::read_csv("./inst/test-data/test_citations_table2.csv")
   df <- df %>%
     dplyr::select('AUTHOR', 'TITLE', 'DATE', 'YEAR', 'DOI', "index")
 
@@ -27,7 +28,7 @@ get_author_info <-function(df){
 
 
   info_df_dois <- info_df_dois %>%
-    dplyr::select("doi", "title", "author") %>%
+    dplyr::select('doi', 'title', 'author') %>%
     tidyr::unnest(author) %>%
     dplyr::rename(DOI = "doi")
 
