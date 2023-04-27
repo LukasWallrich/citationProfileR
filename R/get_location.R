@@ -38,10 +38,12 @@ get_location <- function(df_with_affiliation){
 
           #print(c("OSM affiliation returned is"), OSM_affiliation_returned$coords["x"])
 
-          #if OSM does not return a geolocation, try to split according to commas, then
+          #if OSM does not return a geolocation, try to split according to commas
           if(is.null(OSM_affiliation_returned)){
+            #ADD THE COMMA SPLITTING HERE
+
             #move onto the next entry
-            print("No OSM data returned")
+            print("No OSM data returned, now checking the comma splitting")
             crossref_data$country_code[entry] <-  NA
             next
 
@@ -54,12 +56,13 @@ get_location <- function(df_with_affiliation){
             list_country_code <- location_list[[1]]$country_code
             print(c("I got the list_country_code", list_country_code))
             #add this country code to the respective column
-            crossref_data[nrow(crossref_data), ]$country_code <-  list_country_code #RIGHT HERE THE LOCATION CODE DOES NOT GET ADDED TO THE COLUMN
-            print(crossref_data[nrow(crossref_data), ]$country_code )
+            crossref_data$country_code[entry] <-  toupper(list_country_code)
+            print(crossref_data$country_code[entry] )
             next
           }
         }else{
-          #print(c("I already got the country code from `countrycode`"), countrycode_pkg_return)
+          #countrycode returns country names, turn it into 2 letter country codes
+          countrycode_pkg_return <- toupper(countrycode(countrycode_pkg_return, origin = 'country.name', destination = 'iso2c'))
           #put the info returned by the `countrycode` pkg in the df
           crossref_data$country_code[entry] <-  countrycode_pkg_return
           next
@@ -72,9 +75,8 @@ get_location <- function(df_with_affiliation){
   return(crossref_data)
   }#for loop
 
-#TO DO:
-#1. need to save the entries I get from the for loop
-#2. code it to not stop when there's an error in download.file()
+
+
 
 }
 loc <- geocode_OSM("University of Osnabrück, Germany")
