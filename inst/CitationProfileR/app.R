@@ -158,22 +158,23 @@ server <- function(input, output, session) {
 
 
   ### tab four -- analysis report
-  names <- c("Alex", "Jordan", "Casey", "Tom", "Grace", "Cindy", "Robert")
-
-  f_count <- 0
-  m_count <- 0
-  i_count <- 0. # i stands for inconclusive
-
-  for (name in names) {
-    guess <- guess_gender(name)$gender
-    if (guess == "female") {
-      f_count <- f_count + 1
-    } else if (guess == "male") {
-      m_count <- m_count + 1
-    } else {
-      i_count <- i_count + 1
-    }
-  }
+  #names <- c("Alex", "Jordan", "Casey", "Tom", "Grace", "Cindy", "Robert")
+  # names <- c("Ali")
+  #
+  # f_count <- 0
+  # m_count <- 0
+  # i_count <- 0. # i stands for inconclusive
+  #
+  # for (name in names) {
+  #   guess <- guess_gender(name)$gender
+  #   if (guess == "female") {
+  #     f_count <- f_count + 1
+  #   } else if (guess == "male") {
+  #     m_count <- m_count + 1
+  #   } else {
+  #     i_count <- i_count + 1
+  #   }
+  # }
 
   # gender breakdown barplot
   ##################
