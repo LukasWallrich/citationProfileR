@@ -1,6 +1,3 @@
-library(rcrossref)
-library(tidyverse)
-
 #' get_author_info
 #'
 #' @param df data frame containing author, title and date
