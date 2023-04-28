@@ -20,7 +20,10 @@ Imports:
     magrittr,
     httr,
     jsonlite,
-    rlang
+    rlang,
+    countrycode,
+    stringr,
+    tmaptools
 Suggests: 
     covr,
     testthat (>= 3.0.0)

@@ -3,6 +3,12 @@
 #' @param crossref_data Data frame containing affiliations. If using Shiny App, the data will come from `crossref_api()` function
 #'
 #' @return Dataframe with country names and country codes based on the inputted affiliation
+#' @importFrom tmaptools geocode_OSM
+#' @importFrom stringr str_count
+#' @importFrom stringr str_locate_all
+#' @importFrom tmaptools rev_geocode_OSM
+#' @importFrom countrycode countrycode
+#'
 #' @export
 #'
 #' @examples
@@ -54,19 +60,19 @@ get_location <- function(crossref_data){
         #if `countrycode` package does not return any information, use OSM
         if(rlang::is_empty(countrycode_pkg_return)){
           #get the information about the location using OSM
-          OSM_affiliation_returned <- geocode_OSM(affiliation)
+          OSM_affiliation_returned <- tmaptools::geocode_OSM(affiliation)
 
           #if OSM does not return a geolocation, try to split according to commas
           if(is.null(OSM_affiliation_returned)){
             #cases to test -- row 36 Centre for Social Investigation, Nuffield College, University of Oxford, Oxford, UK
 
             #if the affiliation has any commas, proceed to comma splitting
-            if(str_count(affiliation, ",") > 0){
+            if(stringr::str_count(affiliation, ",") > 0){
               #count the number of commas present in a affiliation phrase
-              num_commas <- str_count(affiliation, ",")
+              num_commas <- stringr::str_count(affiliation, ",")
 
               #find the location of the last comma
-              locations_all_commas <- str_locate_all(pattern = ",", affiliation)
+              locations_all_commas <- stringr::str_locate_all(pattern = ",", affiliation)
               last_comma_location <- max(locations_all_commas[[1]])
               #if the phrase has a comma in the end and nothing after, get rid of the comma, update affiliation
               affiliation <- ifelse(last_comma_location == nchar(affiliation),
@@ -76,11 +82,11 @@ get_location <- function(crossref_data){
               #if n commmas are present, I will choose the phrase after n commas.
               last_phrase <- substr(affiliation, last_comma_location+1, nchar(affiliation))
               #get the OSM location
-              OSM_last_phrase <- geocode_OSM(last_phrase)
+              OSM_last_phrase <- tmaptools::geocode_OSM(last_phrase)
               #if OSM location exists for the last phrase, get the lcoation name
               if(!is.null(OSM_last_phrase)){
                 #get the location list
-                last_phrase_location <- rev_geocode_OSM(OSM_last_phrase$coords["x"], OSM_last_phrase$coords["y"])
+                last_phrase_location <- tmaptools::rev_geocode_OSM(OSM_last_phrase$coords["x"], OSM_last_phrase$coords["y"])
                 #get the location code
                 last_phrase_country_code <- last_phrase_location[[1]]$country_code
 
@@ -136,7 +142,7 @@ get_location <- function(crossref_data){
 
           }else{
             #if the OSM returns a geolocation, get the country code using OSM
-            location_list <- rev_geocode_OSM(OSM_affiliation_returned$coords["x"], OSM_affiliation_returned$coords["y"])
+            location_list <- tmaptools::rev_geocode_OSM(OSM_affiliation_returned$coords["x"], OSM_affiliation_returned$coords["y"])
             #Get the country code of the affiliation
             list_country_code <- location_list[[1]]$country_code
             #add this country code to the respective column
@@ -166,7 +172,7 @@ get_location <- function(crossref_data){
           }
 
           #countrycode returns country names, turn it into 2 letter country codes
-          countrycode_pkg_return <- toupper(countrycode(countrycode_pkg_return, origin = 'country.name', destination = 'iso2c'))
+          countrycode_pkg_return <- toupper(countrycode::countrycode(countrycode_pkg_return, origin = 'country.name', destination = 'iso2c'))
           #put the info returned by the `countrycode` pkg in the df
           #crossref_data$country_code[entry] <-  countrycode_pkg_return
           if(is.na(crossref_data$country_code[entry])){
