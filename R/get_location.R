@@ -6,12 +6,16 @@
 #' @export
 #'
 #' @examples
+#' file_path <- system.file("test-data", "test_data_crossref_results.csv", package = "CitationProfileR")
+#' sample_data_frame <- read.csv(file_path)
+#' get_location(sample_data_frame)
+
 
 # load library(tmaptools)
 #load library(tidyverse), library(countrycode), library(purrr)
 
 #RUN THIS IF YOU WANT TO LOAD A SAMPLE DF
-# crossref_data <- read_csv("R/crossref_results.csv")
+# crossref_data <- read_csv("inst/test-data/test_data_crossref_results.csv")
 
 get_location <- function(crossref_data){
 
