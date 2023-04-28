@@ -1,6 +1,6 @@
 #' get_location
 #'
-#' @param crossref_data Data frame containing affiliations
+#' @param crossref_data Data frame containing affiliations. If using Shiny App, the data will come from `crossref_api()` function
 #'
 #' @return Dataframe with country names and country codes based on the inputted affiliation
 #' @export
