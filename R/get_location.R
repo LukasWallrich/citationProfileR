@@ -1,7 +1,7 @@
 #' get_location
 #'
-#' @param data_with_affiliations Data frame containing affiliations. If using Shiny App, the data will come from `crossref_api()` function
-#' @param affiliations_col_name The name of the affiliations column.
+#' @param crossref_data Data frame containing affiliations. If using Shiny App, the data will come from `crossref_api()` function
+#' @param affiliation_col_name String name of the affiliations column.
 #'
 #' @return Dataframe with country names and country codes based on the inputted affiliation
 #' @importFrom tmaptools geocode_OSM
@@ -9,7 +9,7 @@
 #' @importFrom stringr str_locate_all
 #' @importFrom tmaptools rev_geocode_OSM
 #' @importFrom countrycode countrycode
-#'
+
 #' @export
 #'
 #' @examples
@@ -22,35 +22,35 @@
 #load library(tidyverse), library(countrycode), library(purrr)
 
 #RUN THIS IF YOU WANT TO LOAD A SAMPLE DF
-# data_with_affiliations <- read_csv("inst/test-data/test_data_crossref_results.csv")
+# crossref_data <- read_csv("inst/test-data/test_data_crossref_results.csv")
 
-get_location <- function(data_with_affiliations, affiliations_col_name){
+get_location <- function(crossref_data, affiliation_col_name){
 
   #If both country_code and country_name exist, do not create a new column name that
-  if("country_code" %in% colnames(data_with_affiliations) & "country_name" %in% colnames(data_with_affiliations)){
-    data_with_affiliations$country_code
-  }else if(!"country_code" %in% colnames(data_with_affiliations) & !"country_name" %in% colnames(data_with_affiliations)){
+  if("country_code" %in% colnames(crossref_data) & "country_name" %in% colnames(crossref_data)){
+    crossref_data$country_code
+  }else if(!"country_code" %in% colnames(crossref_data) & !"country_name" %in% colnames(crossref_data)){
     #if neither cols exist, create new cols
 
     #add an empty column country_code
-    data_with_affiliations <- cbind(data_with_affiliations, country_code=NA)
+    crossref_data <- cbind(crossref_data, country_code=NA)
 
     #add an empty column country_name
-    data_with_affiliations <- cbind(data_with_affiliations, country_name=NA)
+    crossref_data <- cbind(crossref_data, country_name=NA)
 
-  }else if("country_code" %in% colnames(data_with_affiliations) & !"country_name" %in% colnames(data_with_affiliations)){
+  }else if("country_code" %in% colnames(crossref_data) & !"country_name" %in% colnames(crossref_data)){
     #if country_name does not exist, create a new col
-    data_with_affiliations <- cbind(data_with_affiliations, country_name=NA)
+    crossref_data <- cbind(crossref_data, country_name=NA)
 
-  }else if(!"country_code" %in% colnames(data_with_affiliations) & "country_name" %in% colnames(data_with_affiliations)){
+  }else if(!"country_code" %in% colnames(crossref_data) & "country_name" %in% colnames(crossref_data)){
     #if country_code does not exist, create a new col
-    data_with_affiliations <- cbind(data_with_affiliations, country_code=NA)
+    crossref_data <- cbind(crossref_data, country_code=NA)
   }
 
 
-  for(entry in 1:nrow(data_with_affiliations)){
+  for(entry in 1:nrow(crossref_data)){
     #pull the specific affiliation one by one
-    affiliation <- data_with_affiliations$affiliations_col_name[entry]
+    affiliation <- crossref_data[affiliation_col_name][entry,]
 
     #if the affiliation entry is not NA
     if(!is.na(affiliation)){
@@ -92,51 +92,51 @@ get_location <- function(data_with_affiliations, affiliations_col_name){
                 last_phrase_country_code <- last_phrase_location[[1]]$country_code
 
                 #if the country_code entry is NA, put the value in
-                if(is.na(data_with_affiliations$country_code[entry])){
-                  data_with_affiliations$country_code[entry] <-  toupper(last_phrase_country_code)
+                if(is.na(crossref_data$country_code[entry])){
+                  crossref_data$country_code[entry] <-  toupper(last_phrase_country_code)
                 }else{#if the entry is not NA, do not change the entry
-                  data_with_affiliations$country_code[entry] <- data_with_affiliations$country_code[entry]
+                  crossref_data$country_code[entry] <- crossref_data$country_code[entry]
                 }
 
                 #get the country name from last_phrase_location
                 last_phrase_country_name <- last_phrase_location[[1]]$country
                 #if country_name entry is NA, enter the value
-                if(is.na(data_with_affiliations$country_name[entry])){
-                  data_with_affiliations$country_name[entry] <- last_phrase_country_name
+                if(is.na(crossref_data$country_name[entry])){
+                  crossref_data$country_name[entry] <- last_phrase_country_name
                 }else{#if country_name entry is not NA, keep the same value
-                  data_with_affiliations$country_name[entry] <- data_with_affiliations$country_name[entry]
+                  crossref_data$country_name[entry] <- crossref_data$country_name[entry]
                 }
                 next
               }else{#if after comma splitting OSM does not return anything
                 #put NA in the entry if the entry was already NA
-                if(is.na(data_with_affiliations$country_code[entry])){
-                  data_with_affiliations$country_code[entry] <-  NA
+                if(is.na(crossref_data$country_code[entry])){
+                  crossref_data$country_code[entry] <-  NA
                 }else{# if the entry was not NA, put the same value
-                  data_with_affiliations$country_code[entry] <- data_with_affiliations$country_code[entry]
+                  crossref_data$country_code[entry] <- crossref_data$country_code[entry]
                 }
                 #put NA in country_name if the entry was already NA
-                if(is.na(data_with_affiliations$country_name[entry])){
+                if(is.na(crossref_data$country_name[entry])){
                   #Put NA in country_name[entry]
-                  data_with_affiliations$country_name[entry] <-  NA
+                  crossref_data$country_name[entry] <-  NA
                 }else{#if the entry had a value, keep the value
-                  data_with_affiliations$country_name[entry] <- data_with_affiliations$country_name[entry]
+                  crossref_data$country_name[entry] <- crossref_data$country_name[entry]
                 }
                 next
               }
 
             }else{# if the affiliation has no commas and OSM does not return anything
               #put NA in the entry if the entry was already NA
-              if(is.na(data_with_affiliations$country_code[entry])){
-                data_with_affiliations$country_code[entry] <-  NA
+              if(is.na(crossref_data$country_code[entry])){
+                crossref_data$country_code[entry] <-  NA
               }else{# if the entry was not NA, put the same value
-                data_with_affiliations$country_code[entry] <- data_with_affiliations$country_code[entry]
+                crossref_data$country_code[entry] <- crossref_data$country_code[entry]
               }
               #put NA in country_name if the entry was already NA
-              if(is.na(data_with_affiliations$country_name[entry])){
+              if(is.na(crossref_data$country_name[entry])){
                 #Put NA in country_name[entry]
-                data_with_affiliations$country_name[entry] <-  NA
+                crossref_data$country_name[entry] <-  NA
               }else{#if the entry had a value, keep the value
-                data_with_affiliations$country_name[entry] <- data_with_affiliations$country_name[entry]
+                crossref_data$country_name[entry] <- crossref_data$country_name[entry]
               }
               next
             }
@@ -148,59 +148,59 @@ get_location <- function(data_with_affiliations, affiliations_col_name){
             list_country_code <- location_list[[1]]$country_code
             #add this country code to the respective column
             #if the country_code entry is NA, put the value in
-            if(is.na(data_with_affiliations$country_code[entry])){
-              data_with_affiliations$country_code[entry] <-  toupper(list_country_code)
+            if(is.na(crossref_data$country_code[entry])){
+              crossref_data$country_code[entry] <-  toupper(list_country_code)
             }else{#if the entry is not NA, do not change the entry
-              data_with_affiliations$country_code[entry] <- data_with_affiliations$country_code[entry]
+              crossref_data$country_code[entry] <- crossref_data$country_code[entry]
             }
 
             #HERE put value into country_name from location_list
             list_country_name <- location_list[[1]]$country
-            if(is.na(data_with_affiliations$country_name[entry])){
-              data_with_affiliations$country_name[entry] <- list_country_name
+            if(is.na(crossref_data$country_name[entry])){
+              crossref_data$country_name[entry] <- list_country_name
             }else{#if country_name entry is not NA, keep the same value
-              data_with_affiliations$country_name[entry] <- data_with_affiliations$country_name[entry]
+              crossref_data$country_name[entry] <- crossref_data$country_name[entry]
             }
             next
           }
         }else{
           #HERE put country name from countrycode_pkg_return into the column
-          #data_with_affiliations$country_name[entry] <-  countrycode_pkg_return
-          if(is.na(data_with_affiliations$country_name[entry])){
-            data_with_affiliations$country_name[entry] <- countrycode_pkg_return
+          #crossref_data$country_name[entry] <-  countrycode_pkg_return
+          if(is.na(crossref_data$country_name[entry])){
+            crossref_data$country_name[entry] <- countrycode_pkg_return
           }else{#if country_name entry is not NA, keep the same value
-            data_with_affiliations$country_name[entry] <- data_with_affiliations$country_name[entry]
+            crossref_data$country_name[entry] <- crossref_data$country_name[entry]
           }
 
           #countrycode returns country names, turn it into 2 letter country codes
           countrycode_pkg_return <- toupper(countrycode::countrycode(countrycode_pkg_return, origin = 'country.name', destination = 'iso2c'))
           #put the info returned by the `countrycode` pkg in the df
-          #data_with_affiliations$country_code[entry] <-  countrycode_pkg_return
-          if(is.na(data_with_affiliations$country_code[entry])){
-            data_with_affiliations$country_code[entry] <-  countrycode_pkg_return
+          #crossref_data$country_code[entry] <-  countrycode_pkg_return
+          if(is.na(crossref_data$country_code[entry])){
+            crossref_data$country_code[entry] <-  countrycode_pkg_return
           }else{#if the entry is not NA, do not change the entry
-            data_with_affiliations$country_code[entry] <- data_with_affiliations$country_code[entry]
+            crossref_data$country_code[entry] <- crossref_data$country_code[entry]
           }
           next
         }
 
     }else{     #if the entry is NA
-      if(is.na(data_with_affiliations$country_code[entry])){
-        data_with_affiliations$country_code[entry] <-  NA
+      if(is.na(crossref_data$country_code[entry])){
+        crossref_data$country_code[entry] <-  NA
       }else{# if the entry was not NA, put the same value
-        data_with_affiliations$country_code[entry] <- data_with_affiliations$country_code[entry]
+        crossref_data$country_code[entry] <- crossref_data$country_code[entry]
       }
       #put NA in country_name if the entry was already NA
-      if(is.na(data_with_affiliations$country_name[entry])){
+      if(is.na(crossref_data$country_name[entry])){
         #Put NA in country_name[entry]
-        data_with_affiliations$country_name[entry] <-  NA
+        crossref_data$country_name[entry] <-  NA
       }else{#if the entry had a value, keep the value
-        data_with_affiliations$country_name[entry] <- data_with_affiliations$country_name[entry]
+        crossref_data$country_name[entry] <- crossref_data$country_name[entry]
       }
       next
     }
   }#for loop
 
 
-return(data_with_affiliations)
+return(crossref_data)
 }#function
