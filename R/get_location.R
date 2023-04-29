@@ -9,7 +9,6 @@
 #' @importFrom stringr str_locate_all
 #' @importFrom tmaptools rev_geocode_OSM
 #' @importFrom countrycode countrycode
-
 #' @export
 #'
 #' @examples
