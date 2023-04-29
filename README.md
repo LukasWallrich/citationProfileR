@@ -4,6 +4,7 @@
 <!-- badges: start -->
 [![R-CMD-check](https://github.com/LukasWallrich/citationProfileR/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/LukasWallrich/citationProfileR/actions/workflows/R-CMD-check.yaml)
 [![Codecov test coverage](https://codecov.io/gh/LukasWallrich/citationProfileR/branch/main/graph/badge.svg)](https://app.codecov.io/gh/LukasWallrich/citationProfileR?branch=main)
+[![Lifecycle:Experimental](https://img.shields.io/badge/Lifecycle-Experimental-339999)](https://github.com/LukasWallrich/citationProfileR)
 <!-- badges: end -->
 
 citationProfileR <img src="inst/supplements/CitationProfileR_logo.png" align="right" style="height:200px; padding: 10px;" />
