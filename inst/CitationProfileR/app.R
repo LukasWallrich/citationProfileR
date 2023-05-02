@@ -275,15 +275,19 @@ server <- function(input, output, session) {
   output$genderBarPlot <- renderPlotly({
     df <- Transparency_data()
 
-    df$gender <- factor(df$gender, levels = df$gender)
+    viz <- df %>%
+      dplyr::group_by(gender_prediction) %>%
+      dplyr::summarize(count = dplyr::n())
+    print(viz)
 
-    bar <- ggplot(data=df, aes(x=gender, y= gender_prediction)) +
+    bar <- ggplot(data= viz, aes(x=gender_prediction, y = count)) +
       geom_bar(stat="identity")
 
     fig <- ggplotly(bar)
     fig
   })
 
+  #have to change it
   # Downloadable diversity report pdf
   output$downloadReport <- downloadHandler(
     filename = function() {
