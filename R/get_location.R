@@ -43,10 +43,10 @@ get_location <- function(citation_data, affiliation_col_name = "affiliation.name
     #pull the specific affiliation one by one
     affiliation <- citation_data[affiliation_col_name][entry,]
 
-    #HERE if country_code is not NA
+    #if country_code is not NA
     if(!is.na(citation_data$country_code[entry])){
       #check if country_name is NA
-      #if country_name is NA, skip to the next entry
+      #if country_name is not NA, skip to the next entry
       if(!is.na(citation_data$country_name[entry])){
         next
       }else{#if country name is NA
