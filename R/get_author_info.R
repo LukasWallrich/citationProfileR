@@ -63,12 +63,19 @@ for(entry in 1:nrow(na_list_doi)){
   og_doi <- na_list_doi$DOI[entry]
   index <- na_list_doi$index[entry]
 
+  #if date and title have values, combine them together so we are able to use them in the crossref query
+  date_title <- if(!is.na(date) & !is.na(title)){
+    paste0(title, " ", date)
+  } else{
+    title
+  }
+
   #test cases for the different available author/title info for each paper
   test_na_doi <-   if (!is.na(author) & !is.na(title)){   #both title and author have values
-    rcrossref::cr_works(flq = c(query.author = author, query.bibliographic = title), limit = 1,sort='relevance', select = c('DOI', 'title', 'author', 'created', 'published-print', 'published-online', 'publisher-location'))
+    rcrossref::cr_works(flq = c(query.author = author, query.bibliographic = date_title), limit = 1,sort='relevance', select = c('DOI', 'title', 'author', 'created', 'published-print', 'published-online', 'publisher-location'))
   }
   else if(!is.na(title) & is.na(author)){ #when the entry has a title and NA author
-    rcrossref::cr_works(flq = c(query.bibliographic = title), limit = 1,sort='relevance', select = c('DOI', 'title', 'author', 'created', 'published-print', 'published-online', 'publisher-location'))
+    rcrossref::cr_works(flq = c(query.bibliographic = date_title), limit = 1,sort='relevance', select = c('DOI', 'title', 'author', 'created', 'published-print', 'published-online', 'publisher-location'))
   }
   else if(is.na(title) & !is.na(author)){ #when the entry has NA-value title and non-NA value author
     NULL
