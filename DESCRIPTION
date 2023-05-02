@@ -9,8 +9,7 @@ Authors@R: c(
     person("Lika", "Mikhelashvili", ,"lmikhelashvili@smith.edu", role = c("aut"),
            comment = c(ORCID = "YOUR-ORCID-ID")),
     person("Mackie", "Zhou", ,"mzhou@smith.edu", role = c("aut"),
-           comment = c(ORCID = "YOUR-ORCID-ID")),
-    person("coccopuffs", role = "cph", comment = "Author of GenderGuesser R package and guessGender.R code which we adapted for our guess_gender.R implementation")
+           comment = c(ORCID = "YOUR-ORCID-ID"))
            )
 Description: The package will provide a user interface for academics to input their academic papers and receive a diversity statement with visualizations.
 License: MIT + file LICENSE
@@ -29,7 +28,11 @@ Imports:
     checkmate,
     glue,
     utils,
-    shinyFeedback
+    shinyFeedback, 
+    readr,
+    rcrossref,
+    tibble,
+    tidyr
 Suggests: 
     covr,
     testthat (>= 3.0.0)

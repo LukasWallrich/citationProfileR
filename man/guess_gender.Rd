@@ -9,14 +9,22 @@ guess_gender(name, countrycode = countrycode, key = NA, cache = FALSE)
 \arguments{
 \item{name}{A name to look up.}
 
+\item{countrycode}{The country code that the user inputs.}
+
 \item{key}{An optional API key for https://gender-api.com/.}
 
-\item{cache}{(logical) local cache to avoid similar request combinations repeating}
+\item{cache}{(logical) local cache to avoid similar request combinations repeating.}
 }
 \description{
 This function uses the https://gender-api.com/ API to supply estimates of the gender for one name.
 }
 \examples{
+<<<<<<< HEAD
 guess_gender("Rithika", "US")
+=======
+\dontrun{
+guess_gender("Rithika", "US")
+}
+>>>>>>> 286877410976d070d4847cba3af105d6c752f310
 }
 \keyword{internal}

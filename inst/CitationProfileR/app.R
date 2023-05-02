@@ -49,7 +49,7 @@ ui <- navbarPage(
           buttonLabel = "Browse"
         ),
         textOutput("pdf_confirmation"),
-        tableOutput("extracted_table"),
+        tableOutput("citation_table"),
         shiny::downloadButton(
           outputId = "redownload",
           label = "Download the file you just uploaded LOL"
@@ -71,6 +71,7 @@ ui <- navbarPage(
         width = 12,
         h4("Download Your Citation Data"),
         mainPanel(
+          tableOutput("full_authors"),
           downloadButton(
             outputId = "downloadData",
             label = "Download CSV"
@@ -120,7 +121,7 @@ server <- function(input, output, session) {
   ## Where we will hold the df that we will pass to tab 3
   citation_data <- reactiveVal()
   observeEvent(input$paper, {
-
+    print("I get inside the observe event")
     #verify that the file upload is pdf kind
     not_pdf <- tools::file_ext(input$paper$name) != "pdf"
     if(not_pdf){
@@ -136,9 +137,17 @@ server <- function(input, output, session) {
 
     # extract the citations
     uploaded_paper <- input$paper$datapath
-    citation_data(parse_pdf_refs(uploaded_paper))
+    citations <-parse_pdf_refs(uploaded_paper)
+    citation_data(citations)
+    print("I am able to pass the parse_pdf")
+    print(paste("citations are ", data.frame(citations)))
+    Full_author_info <- get_author_info(citations)
     # for testing we can display the table of extracted citations if contents is uncommented in UI
-    output$extracted_table <- renderTable(citation_data())
+    output$citation_table <- renderTable(citation_data())
+
+    output$full_authors <- renderTable(Full_author_info)
+
+
 
     # test upload successful with a redownload (already tested above with extracted table output so notfully needed)
     output$redownload <- downloadHandler(
@@ -150,30 +159,40 @@ server <- function(input, output, session) {
       },
       contentType = "application/pdf"
     )
+
   })
 
-
   ### tab three -- process data and download dataset
+  #once the data from GROBID has changed
+  # observeEvent(citation_data(), {
+  #
+  #   print("I get into the get_author_data observe event")
+  #   Full_author_info <- get_author_info(citation_data())
+  #   print(Full_author_info)
+  #   print("I get passed the get_author_info information")
+  #   #output$full_authors <- renderTable(Full_author_info)
+  # })
 
 
 
   ### tab four -- analysis report
-  names <- c("Alex", "Jordan", "Casey", "Tom", "Grace", "Cindy", "Robert")
-
-  f_count <- 0
-  m_count <- 0
-  i_count <- 0. # i stands for inconclusive
-
-  for (name in names) {
-    guess <- guess_gender(name)$gender
-    if (guess == "female") {
-      f_count <- f_count + 1
-    } else if (guess == "male") {
-      m_count <- m_count + 1
-    } else {
-      i_count <- i_count + 1
-    }
-  }
+  #names <- c("Alex", "Jordan", "Casey", "Tom", "Grace", "Cindy", "Robert")
+  # names <- c("Ali")
+  #
+  # f_count <- 0
+  # m_count <- 0
+  # i_count <- 0. # i stands for inconclusive
+  #
+  # for (name in names) {
+  #   guess <- guess_gender(name)$gender
+  #   if (guess == "female") {
+  #     f_count <- f_count + 1
+  #   } else if (guess == "male") {
+  #     m_count <- m_count + 1
+  #   } else {
+  #     i_count <- i_count + 1
+  #   }
+  # }
 
   # gender breakdown barplot
   ##################
