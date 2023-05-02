@@ -10,33 +10,20 @@
 #' file_path <- system.file("test-data", "test_data_crossref_results.csv", package = "CitationProfileR")
 #' sample_data_frame <- read.csv(file_path)
 #' get_location(sample_data_frame)
-#' \dontrun{
-#' get_location(sample_data_frame, "affiliations_column")
-#' }
 
 get_location <- function(citation_data, affiliation_col_name = "affiliation.name"){
 
-  #If both country_code and country_name exist, do not create a new column name that
-  if("country_code" %in% colnames(citation_data) & "country_name" %in% colnames(citation_data)){
-    citation_data$country_code
-    citation_data$country_name
-  }else if(!"country_code" %in% colnames(citation_data) & !"country_name" %in% colnames(citation_data)){
-    #if neither cols exist, create new cols
-
+  #If country_code col does not exist, add it
+  if(!"country_code" %in% colnames(citation_data)){
     #add an empty column country_code
     citation_data <- cbind(citation_data, country_code=NA)
-
+  }
+  #If country_name col does not exist, add it
+  if(!"country_name"%in% colnames(citation_data)){
     #add an empty column country_name
     citation_data <- cbind(citation_data, country_name=NA)
-
-  }else if("country_code" %in% colnames(citation_data) & !"country_name" %in% colnames(citation_data)){
-    #if country_name does not exist, create a new col
-    citation_data <- cbind(citation_data, country_name=NA)
-
-  }else if(!"country_code" %in% colnames(citation_data) & "country_name" %in% colnames(citation_data)){
-    #if country_code does not exist, create a new col
-    citation_data <- cbind(citation_data, country_code=NA)
   }
+
 
   #for loop
   for(entry in seq_len(nrow(citation_data))){
