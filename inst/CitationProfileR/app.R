@@ -71,7 +71,9 @@ ui <- navbarPage(
         width = 12,
         h4("Download Your Citation Data"),
         mainPanel(
-          tableOutput("full_authors"),
+          htmlOutput("percentage_progress"),
+          htmlOutput("progress_message"),
+          tableOutput("transparency_table"),
           downloadButton(
             outputId = "downloadData",
             label = "Download CSV"
@@ -118,10 +120,16 @@ ui <- navbarPage(
 server <- function(input, output, session) {
 
   ### tab two -- upload pdf manuscripts
+  #####################################
   ## Where we will hold the df that we will pass to tab 3
   citation_data <- reactiveVal()
+  #For progress msgs
+  perc_prog <- reactiveVal()
+  prog_msg <- reactiveVal()
+  output$percentage_progress <- renderUI(perc_prog(HTML("<h1>0%</h1>")))
+  output$progress_message <- renderUI(prog_msg(HTML("<h1>Input A Paper On The Upload Tab</h1>")))
   observeEvent(input$paper, {
-    print("I get inside the observe event")
+
     #verify that the file upload is pdf kind
     not_pdf <- tools::file_ext(input$paper$name) != "pdf"
     if(not_pdf){
@@ -135,19 +143,15 @@ server <- function(input, output, session) {
       paste("File uploaded:", input$paper$name)
     })
 
-    # extract the citations
+    #start messages
+    output$percentage_progress <- renderUI(perc_prog(HTML("<h1>25%</h1>")))
+    output$progress_message <- renderUI(prog_msg(HTML("<h1>Citations Are Being Extracted</h1>")))
+
+    # extract the citations from PDf
     uploaded_paper <- input$paper$datapath
     citations <-parse_pdf_refs(uploaded_paper)
     citation_data(citations)
-    print("I am able to pass the parse_pdf")
-    print(paste("citations are ", data.frame(citations)))
-    Full_author_info <- get_author_info(citations)
-    # for testing we can display the table of extracted citations if contents is uncommented in UI
     output$citation_table <- renderTable(citation_data())
-
-    output$full_authors <- renderTable(Full_author_info)
-
-
 
     # test upload successful with a redownload (already tested above with extracted table output so notfully needed)
     output$redownload <- downloadHandler(
@@ -162,49 +166,118 @@ server <- function(input, output, session) {
 
   })
 
-  ### tab three -- process data and download dataset
-  #once the data from GROBID has changed
-  # observeEvent(citation_data(), {
-  #
-  #   print("I get into the get_author_data observe event")
-  #   Full_author_info <- get_author_info(citation_data())
-  #   print(Full_author_info)
-  #   print("I get passed the get_author_info information")
-  #   #output$full_authors <- renderTable(Full_author_info)
-  # })
+  ##################################
 
+
+  ### tab three -- process data and download dataset
+  ##################################################
+
+  #once the data from GROBID has changed
+  names_data <- reactiveVal()
+  observeEvent(citation_data(), {
+
+    output$percentage_progress <- renderUI(perc_prog(HTML("<h1>50%</h1>")))
+    output$progress_message <- renderUI(prog_msg(HTML("<h1>First Names and Affiliations are Being Gathered</h1>")))
+    # use reactive storing the output of parse_pdf_refs in get_author_info
+    Full_author_info <- get_author_info(citation_data())
+
+    #gets index of all column names that contain affiliation
+    affiliation_columns<- grep("^affiliation", colnames(Full_author_info))
+    # Initial order for  transparency table, selecting the columns we want to show
+    col_names <- c('index', 'OG_Author', 'title', 'OG_doi', 'Date', 'given', 'family')
+    info_tbl<- Full_author_info[, c(col_names,colnames(Full_author_info[affiliation_columns]))]
+
+    names_data(info_tbl)
+    #output to see the progress after getting name and affiliation
+    output$full_authors <- renderTable(dplyr::arrange(info_tbl, index))
+
+  })
+
+  Transparency_data <- reactiveVal()
+  observeEvent(names_data(), {
+    output$percentage_progress <- renderUI(perc_prog(HTML("<h1>75%</h1>")))
+    output$progress_message <- renderUI(prog_msg(HTML("<h1>Genders are Being Predicted</h1>")))
+    # use reactive storing the output of get_author_info that gives us first name
+    all_first_names <- names_data()$given
+
+    # function to make api call and get info needed for the map over all names
+    get_prediction_and_accuracy <- function(name){
+
+      #if middle name or initial are there, use only the first name. Also get rid of any . as they break URL
+      name <- strsplit(name, " ")[[1]][[1]]
+      name <- gsub("[.]", "", name)
+
+      if(name == "No result matched" | name == "Inconclusive" | is.na(name)){
+        #nested_df <- tibble::tibble(data = list(tibble::tibble(gender_prediction = NA , accuracy = NA)))
+        #nested_df <- list(NA, NA)
+        nested_df <- tibble::tibble(gender_prediction = NA, accuracy = NA)
+      }else{
+        #Do API prediction call
+        pred <- guess_gender(name, "UK")
+
+        # troubleshoot print
+        #print("Printing Gender Guesses")
+        #print(pred)
+
+        gender <- pred$gender
+        accuracy_pred <- pred$accuracy
+        #if returns a prediction write those down, else use NA
+        if(gender == "male" | gender =="female"){
+          #nested_df <- tibble::tibble(data = list(tibble::tibble(gender_prediction = gender , accuracy = accuracy_pred)))
+          #nested_df <- list(gender, accuracy_pred)
+          nested_df <- tibble::tibble(gender_prediction = gender, accuracy = accuracy_pred)
+        }else{
+          #nested_df <- tibble::tibble(data = list(tibble::tibble(gender_prediction = NA , accuracy = NA)))
+          #nested_df <- list(NA, NA)
+          nested_df <- tibble::tibble(gender_prediction = NA, accuracy = NA)
+        }
+      }
+      #return the correct nested df
+      return(nested_df)
+    }
+
+    # dataframe of the gender prediction and accuracy per name
+    gender_columns <- purrr::map_dfr(all_first_names, get_prediction_and_accuracy)
+
+    # combine general information per name and its gender prediction
+    Trans_data <- cbind(names_data(), gender_columns)
+
+    #styling
+    Trans_data <- Trans_data %>%
+      rename(Extracted_Authors = OG_Author, Extracted_DOI = OG_doi)
+
+    Transparency_data(Trans_data)
+    output$transparency_table <- renderTable(dplyr::arrange(Trans_data, index))
+    output$percentage_progress <- renderUI(HTML("<h1>100%</h1>"))
+    output$progress_message <- renderUI(HTML("<h1>Your Information is Ready</h1>"))
+  })
+
+  # TODO: test edge case of clicking the button before inputting
+  # change names_data to transparency_table and put it closer to the other one
+  output$downloadData <- downloadHandler(
+    filename =  function() {
+      paste(input$paper$name,"-Transparency-Data",".csv", sep="")
+    },
+    content = function(file) {
+      write.csv(Transparency_data(), file)
+    },
+    contentType = "application/csv"
+  )
+
+
+  ###########################################################
 
 
   ### tab four -- analysis report
-  #names <- c("Alex", "Jordan", "Casey", "Tom", "Grace", "Cindy", "Robert")
-  # names <- c("Ali")
-  #
-  # f_count <- 0
-  # m_count <- 0
-  # i_count <- 0. # i stands for inconclusive
-  #
-  # for (name in names) {
-  #   guess <- guess_gender(name)$gender
-  #   if (guess == "female") {
-  #     f_count <- f_count + 1
-  #   } else if (guess == "male") {
-  #     m_count <- m_count + 1
-  #   } else {
-  #     i_count <- i_count + 1
-  #   }
-  # }
 
   # gender breakdown barplot
   ##################
   output$genderBarPlot <- renderPlotly({
-    df <- data.frame(
-      gender = c("Female", "Male", "Inconclusive"),
-      count = c(f_count, m_count, i_count)
-    )
+    df <- Transparency_data()
 
     df$gender <- factor(df$gender, levels = df$gender)
 
-    bar <- ggplot(data=df, aes(x=gender, y=count)) +
+    bar <- ggplot(data=df, aes(x=gender, y= gender_prediction)) +
       geom_bar(stat="identity")
 
     fig <- ggplotly(bar)
@@ -232,6 +305,32 @@ server <- function(input, output, session) {
       )
     }
   )
+
+  #
+  #   withProgress(message = 'Predicting Genders', value = 0, {
+  #     # Number of times we'll go through the loop
+  #     n <- nrow(names_data())
+  #
+  #     finished_df <- names_data()
+  #
+  #     finished_df <- finished_df %>% dplyr::mutate(gender = NA) %>% dplyr::mutate(accuracy = NA)
+  #
+  #     for (i in 1:n) {
+  #
+  #       name <- finished_df$given[n]
+  #       prediction <- guess_gender(name)
+  #
+  #       finished_df$gender <- prediction$gender
+  #       finished_df$accuracy <- prediction$accuracy
+  #       # Increment the progress bar, and update the detail text.
+  #       incProgress(1/n, detail = paste("Predicted ", i, "Names"))
+  #
+  #       # Pause for 0.1 seconds to simulate a long computation.
+  #       Sys.sleep(0.1)
+  #     }
+  #   })
+
+
   ######################
 }
 
