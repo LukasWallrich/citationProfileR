@@ -18,10 +18,5 @@ Dataframe with country names and country codes based on the inputted affiliation
 get_location
 }
 \examples{
-file_path <- system.file("test-data", "test_data_crossref_results.csv", package = "CitationProfileR")
-sample_data_frame <- read.csv(file_path)
 get_location(sample_data_frame)
-\dontrun{
-get_location(sample_data_frame, "affiliations_column")
-}
 }

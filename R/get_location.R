@@ -7,8 +7,6 @@
 #' @export
 #'
 #' @examples
-#' file_path <- system.file("test-data", "test_data_crossref_results.csv", package = "CitationProfileR")
-#' sample_data_frame <- read.csv(file_path)
 #' get_location(sample_data_frame)
 
 get_location <- function(citation_data, affiliation_col_name = "affiliation.name"){
@@ -27,6 +25,9 @@ get_location <- function(citation_data, affiliation_col_name = "affiliation.name
 
   #for loop
   for(entry in seq_len(nrow(citation_data))){
+
+    Sys.sleep(.5)
+
     #pull the specific affiliation one by one
     affiliation <- citation_data[affiliation_col_name][entry,]
 
