@@ -106,7 +106,7 @@ file_path <- system.file("test-data", "Wallrich_et_al_2020.pdf", package = "Cita
 parse_pdf_refs(file_path)
 ```
 
-The `get_location` function takes in a csv file uploaded to Rstudio, and this function can also run using the example csv file available in our package in order to return a data frame with all the country codes associated with every cited author.
+The `get_location()` function takes in a data frame with affiliations and outputs the country names and country codes of where the affiliations are located. The function has a default affiliations column name set to "affiliation.name", but the user can set a different column name. The `sample_data_frame` dataframe is an example data object available in our package that the user can examine the function on.
 
 ```{r}
 file_path <- system.file("test-data", "test_citations_table2.csv", package = "CitationProfileR")
