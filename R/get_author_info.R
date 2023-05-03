@@ -6,6 +6,10 @@
 #' @export
 #'
 #' @examples
+#' file_path <- system.file("test-data", "test_citations_table2.csv", package = "CitationProfileR")
+#' sample_data_frame <- read.csv(file_path)
+#' get_author_info(sample_data_frame)
+
 get_author_info <-function(df){
   #binding global variables for this function
   Found_author <- NULL

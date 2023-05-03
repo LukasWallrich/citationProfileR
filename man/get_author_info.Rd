@@ -15,3 +15,8 @@ dataframe with the first and last name of the cited authors
 \description{
 get_author_info
 }
+\examples{
+file_path <- system.file("test-data", "test_citations_table2.csv", package = "CitationProfileR")
+sample_data_frame <- read.csv(file_path)
+get_author_info(sample_data_frame)
+}

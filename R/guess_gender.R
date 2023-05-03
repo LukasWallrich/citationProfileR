@@ -9,8 +9,9 @@
 #' @keywords internal
 #' @export
 #' @examples
+#' \dontrun{
 #' #replace_key(key)
-
+#' }
 replace_key <- function(key) {
   writeLines(key, con = "./api_keys")
 }
@@ -25,7 +26,9 @@ replace_key <- function(key) {
 #' @keywords internal
 #' @export
 #' @examples
+#' \dontrun{
 #' guess_gender("Rithika", "US")
+#' }
 
 guess_gender <- function(name, countrycode = countrycode, key = NA, cache = FALSE) {
 
@@ -48,6 +51,7 @@ guess_gender <- function(name, countrycode = countrycode, key = NA, cache = FALS
     #get res from api
     queryResult <- httr::GET("https://gender-api.com/get?", query = query, httr::config(ssl_verifypeer = FALSE))
 
+    #retrieve the information from api results when query status is clear
     if (httr::status_code(queryResult) == 200) {
       responseFromJSON <- jsonlite::fromJSON(httr::content(queryResult, as = "text"))
       responseDF <- data.frame(name = responseFromJSON[["name"]],
@@ -58,6 +62,7 @@ guess_gender <- function(name, countrycode = countrycode, key = NA, cache = FALS
                                duration = responseFromJSON[["duration"]],
                                stringsAsFactors = FALSE)
 
+    #when query isn't able to be processed we return a warning or stop message
     } else {
       warning(paste("\n!!!! http returned status code:",
                     httr::status_code(queryResult),

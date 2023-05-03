@@ -19,6 +19,8 @@ guess_gender(name, countrycode = countrycode, key = NA, cache = FALSE)
 This function uses the https://gender-api.com/ API to supply estimates of the gender for one name.
 }
 \examples{
+\dontrun{
 guess_gender("Rithika", "US")
+}
 }
 \keyword{internal}
