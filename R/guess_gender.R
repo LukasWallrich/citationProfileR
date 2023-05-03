@@ -25,9 +25,7 @@ replace_key <- function(key) {
 #' @keywords internal
 #' @export
 #' @examples
-#' \dontrun{
 #' guess_gender("Rithika", "US")
-#' }
 
 guess_gender <- function(name, countrycode = countrycode, key = NA, cache = FALSE) {
 
