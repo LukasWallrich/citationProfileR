@@ -33,7 +33,7 @@ The package uses data from various web service, like [Crossref API](https://www.
 
 CitationProfileR Shiny dashboard can be accessed through downloading the package along with an external hosting on an html website that will be accessible through search engines.
 
-Link for the hosted dashboard here. *Link to the Shiny UI will be posted soon.*
+The link for the hosted dashboard is: http://127.0.0.1:4955
 
 A user can launch the Shiny dashboard by first finding the app.R script in which the respective file path is: citationProfileR/inst/CitationProfileR/app.R. Once opening the file, all one needs to do is click on the run app tab at the top of the file in Rstudio.
 
