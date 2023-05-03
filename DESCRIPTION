@@ -11,7 +11,6 @@ Authors@R: c(
     person("Mackie", "Zhou", ,"mzhou@smith.edu", role = c("aut"),
            comment = c(ORCID = "YOUR-ORCID-ID")),
     person("coccopuffs", role = "cph", comment = "Author of GenderGuesser R package and guessGender.R code which we adapted for our guess_gender.R implementation"))
-
 Description: The package will provide a user interface for academics to input their academic papers and receive a diversity statement with visualizations.
 License: MIT + file LICENSE
 Encoding: UTF-8
