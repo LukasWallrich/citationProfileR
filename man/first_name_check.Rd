@@ -10,8 +10,13 @@ first_name_check(df)
 \item{df}{A data frame that has the extracted citations from the pdf using GROBID}
 }
 \value{
-a list with two data frames: The first index is entries that have abreviated authors and the second has author's first name
+a list with two data frames: The first index is entries that have abbreviated authors and the second has author's first name
 }
 \description{
 First Name Check
+}
+\examples{
+file_path <- system.file("test-data", "test_citations_table2.csv", package = "CitationProfileR")
+sample_data_frame <- read.csv(file_path)
+first_name_check(sample_data_frame)
 }
