@@ -124,10 +124,12 @@ server <- function(input, output, session) {
   ## Where we will hold the df that we will pass to tab 3
   citation_data <- reactiveVal()
   #For progress msgs
-  perc_prog <- reactiveVal()
+  perc_prog <- reactiveVal({
+    "<h1>0%</h1>"
+  })
   prog_msg <- reactiveVal()
-  output$percentage_progress <- renderUI(perc_prog(HTML("<h1>0%</h1>")))
-  output$progress_message <- renderUI(prog_msg(HTML("<h1>Input A Paper On The Upload Tab</h1>")))
+  output$percentage_progress <- renderUI(HTML(perc_prog()))
+  #output$progress_message <- renderUI(HTML("<h1>Input A Paper On The Upload Tab</h1>"))
   observeEvent(input$paper, {
 
     #verify that the file upload is pdf kind
@@ -143,9 +145,11 @@ server <- function(input, output, session) {
       paste("File uploaded:", input$paper$name)
     })
 
+    perc_prog({"<h1>25%</h1>"})
+
     #start messages
-    output$percentage_progress <- renderUI(perc_prog(HTML("<h1>25%</h1>")))
-    output$progress_message <- renderUI(prog_msg(HTML("<h1>Citations Are Being Extracted</h1>")))
+    output$percentage_progress <- renderUI(HTML(perc_prog()))
+    #output$progress_message <- renderUI(HTML("<h1>Citations Are Being Extracted</h1>"))
 
     # extract the citations from PDf
     uploaded_paper <- input$paper$datapath
@@ -171,13 +175,16 @@ server <- function(input, output, session) {
 
   ### tab three -- process data and download dataset
   ##################################################
-
+  perc_prog("<h1>50%</h1>")
+  output$percentage_progress <- renderUI(HTML(perc_prog()))
   #once the data from GROBID has changed
   names_data <- reactiveVal()
   observeEvent(citation_data(), {
-
-    output$percentage_progress <- renderUI(perc_prog(HTML("<h1>50%</h1>")))
-    output$progress_message <- renderUI(prog_msg(HTML("<h1>First Names and Affiliations are Being Gathered</h1>")))
+    perc_prog("<h1>50%</h1>")
+    print(" Percentage is in citation data event ")
+    print(perc_prog)
+    output$percentage_progress <- renderUI(HTML(perc_prog()))
+    #output$progress_message <- renderUI(HTML("<h1>First Names and Affiliations are Being Gathered</h1>"))
     # use reactive storing the output of parse_pdf_refs in get_author_info
     Full_author_info <- get_author_info(citation_data())
 
@@ -195,8 +202,11 @@ server <- function(input, output, session) {
 
   Transparency_data <- reactiveVal()
   observeEvent(names_data(), {
-    output$percentage_progress <- renderUI(perc_prog(HTML("<h1>75%</h1>")))
-    output$progress_message <- renderUI(prog_msg(HTML("<h1>Genders are Being Predicted</h1>")))
+
+    perc_prog("<h1>75%</h1>")
+    #output$percentage_progress <- renderUI(HTML("<h1>75%</h1>"))
+    #output$progress_message <- renderUI(HTML("<h1>Genders are Being Predicted</h1>"))
+
     # use reactive storing the output of get_author_info that gives us first name
     all_first_names <- names_data()$given
 
@@ -248,8 +258,10 @@ server <- function(input, output, session) {
 
     Transparency_data(Trans_data)
     output$transparency_table <- renderTable(dplyr::arrange(Trans_data, index))
-    output$percentage_progress <- renderUI(HTML("<h1>100%</h1>"))
-    output$progress_message <- renderUI(HTML("<h1>Your Information is Ready</h1>"))
+
+    perc_prog("<h1>100%</h1>")
+    #output$percentage_progress <- renderUI(HTML("<h1>100%</h1>"))
+    #output$progress_message <- renderUI(HTML("<h1>Your Information is Ready</h1>"))
   })
 
   # TODO: test edge case of clicking the button before inputting
