@@ -35,16 +35,24 @@ ui <- navbarPage(
   tabPanel(
     title = "Upload",
     shiny::fluidRow(
+      #allow for input validation HTML/CSS styling
+      shinyFeedback::useShinyFeedback(),
       # style = "border: 1px solid black;",
       column(
         width = 12,
-        h4("Upload your citation files"),
+        h4("Upload your paper"),
         shiny::fileInput(
-          inputId = "citationFile",
+          inputId = "paper",
           label = NULL,
-          multiple = TRUE,
+          multiple = FALSE,
           accept = c(".pdf"),
           buttonLabel = "Browse"
+        ),
+        textOutput("pdf_confirmation"),
+        tableOutput("citation_table"),
+        shiny::downloadButton(
+          outputId = "redownload",
+          label = "Download the file you just uploaded LOL"
         )
       )
     )
@@ -52,6 +60,7 @@ ui <- navbarPage(
   ),
 
   ### tab three -- process data and download dataset
+  ##############
   tabPanel(
     title = "Citation Data",
 
@@ -62,6 +71,9 @@ ui <- navbarPage(
         width = 12,
         h4("Download Your Citation Data"),
         mainPanel(
+          htmlOutput("percentage_progress"),
+          htmlOutput("progress_message"),
+          tableOutput("transparency_table"),
           downloadButton(
             outputId = "downloadData",
             label = "Download CSV"
@@ -70,8 +82,9 @@ ui <- navbarPage(
       )
     )
   ),
-
+  #########
   ### tab four -- analysis report
+  #####################
   tabPanel(
     title = "Analysis",
     shiny::fluidRow(
@@ -82,15 +95,17 @@ ui <- navbarPage(
       )
     ),
 
-    # download analysis
+  ################
+  ### download analysis
+  ##############
     shiny::fluidRow(
       column(
         width = 12,
         h4("Download Your Analysis Report"),
         mainPanel(
           downloadButton(
-            outputId = "downloadAnalysis",
-            label = "Download PDF"
+            outputId = "downloadReport",
+            label = "Download Diversity Report PDF"
           )
         )
       )
@@ -104,198 +119,210 @@ ui <- navbarPage(
 ################### Define server logic to read selected file ###################
 server <- function(input, output, session) {
 
-  # rv <- shiny::reactiveValues()
-  #
-  # rv$df <- data.frame()
-  # rv$upload_df <- data.frame()
-  # rv$CiteSource <- data.frame()
-  # rv$unique <- data.frame()
-  #
-  # #### Upload files tab section ####
-  # #upload on click
-  # shiny::observeEvent(input$file,{
-  #   shiny::validate(need(input$file != "", "Select your bibliographic file to upload..."))
-  #
-  #   if (is.null(input$file)) {
-  #     return(NULL)
-  #   } else {
-  #     #upload files one-by-one
-  #     path_list <- input$file$datapath
-  #     rv$upload_number <- 0
-  #     rv$upload_number <- rv$upload_number + 1
-  #     suggested_source <- stringr::str_replace_all(input$file$name, ".ris", "")
-  #     suggested_source <- stringr::str_replace_all(suggested_source, ".bib", "")
-  #     suggested_source <- stringr::str_replace_all(suggested_source, ".txt", "")
-  #     upload_df <- read_citations(files=input$file$datapath,
-  #                                 cite_sources = suggested_source,
-  #                                 cite_labels = rep("", length(input$file$datapath)),
-  #                                 cite_strings =rep("", length(input$file$datapath)))
-  #     upload_length <- upload_df %>%
-  #       dplyr::group_by(cite_source) %>%
-  #       dplyr::count(name="records") %>%
-  #       dplyr::rename(source = cite_source)
-  #
-  #     #create a dataframe summarising inputs
-  #     df <- data.frame('file' = input$file,
-  #                      'suggested_source' = suggested_source,
-  #                      'label' = rep("", length(input$file$datapath)),
-  #                      'string' = rep("", length(input$file$datapath)))
-  #
-  #     upload_df <- dplyr::left_join(upload_df, df, by=c("cite_source"="suggested_source")) %>%
-  #       dplyr::select(-label, -string) %>%
-  #       dplyr::select(cite_source, cite_label, cite_string, everything())
-  #
-  #     # make sure required cols are present
-  #     required_cols <- c("title", "doi", "label","isbn","source",
-  #                        "year", "journal", "pages", "volume", "number",
-  #                        "abstract")
-  #     upload_df[required_cols[!(required_cols %in% colnames(upload_df))]] = NA
-  #
-  #     df <- dplyr::left_join(upload_length, df, by=c("source" = "suggested_source")) %>%
-  #       dplyr::select(file.name,records, source, label, string)
-  #
-  #     rv$df <- dplyr::bind_rows(rv$df, df)
-  #     rv$upload_df <- dplyr::bind_rows(rv$upload_df, upload_df)
-  #
-  #   }
-  # })
-  #
-  #
-  # # # display summary input table - summary of files added
-  # output$tbl_out <- DT::renderDataTable({
-  #   DT::datatable(rv$df,
-  #                 editable = TRUE,
-  #                 options = list(paging = FALSE,
-  #                                searching = FALSE),
-  #                 rownames = FALSE)
-  # })
-  #
-  # # when file upload table is edited, edit reactive value upload df
-  # shiny::observeEvent(input$tbl_out_cell_edit, {
-  #
-  #   # make sure not blank to avoid blanks in output
-  #
-  #   info <- input$tbl_out_cell_edit
-  #   val <- info$value
-  #
-  #   if(val == ""){
-  #     val <- NA
-  #   }
-  #
-  #   rv$df[info$row, info$col+1] <- val
-  #
-  #   # get rownames for file
-  #   row_indexes <- rv$upload_df %>%
-  #     dplyr::mutate(rowname = dplyr::row_number()) %>%
-  #     dplyr::group_by(file.name) %>%
-  #     dplyr::summarise(min_row = dplyr::first(rowname), max_row=dplyr::last(rowname))
-  #
-  #   rows <- row_indexes[info$row, 2:3]
-  #   col <- paste0("cite_", names(rv$df[info$col+1]))
-  #   file <- rv$df[info$row,1]
-  #
-  #   rv$upload_df[c(rows$min_row:rows$max_row), col] <- val
-  #
-  # })
-  #
-  #
-  # ### Deduplication tab ####
-  #
-  # # when dedup button clicked, deduplicate
-  # shiny::observeEvent(input$identify_dups,{
-  #   last_message <- NULL
-  #   dedup_results <- withCallingHandlers(
-  #     dedup_citations(rv$upload_df, merge_citations = TRUE),
-  #     message = function(m) {
-  #       if (!is.null(last_message)) removeNotification(last_message)
-  #       last_message <<- showNotification(m$message, duration = NULL, type = "message")
-  #     }
-  #   )
-  #   rv$unique <- dedup_results$unique
-  #
-  #   n_citations <- nrow(rv$upload_df)
-  #   n_unique <- nrow(rv$unique)
-  #   n_duplicate <-n_citations - n_unique
-  #   if (!is.null(last_message)) removeNotification(last_message)
-  #
-  #   shinyalert::shinyalert("Deduplication complete",
-  #                          paste("From a total of", n_citations, "citations added, there are", n_unique, "unique citations. Compare citations across sources,
-  #                  labels, and strings in the visualisation tab"), type = "success")
-  #
-  # })
-  #
-  # #### Visualization tab ####
-  # output$plotgraph1<-plotly::renderPlotly({
-  #   n_unique <- count_unique(rv$unique)
-  #
-  #   # for each unique citation, which sources/ strings/ labels are present
-  #   source_comparison <- compare_sources(rv$unique, comp_type = input$comp_type)
-  #   plot_source_overlap_heatmap(source_comparison)
-  # })
-  #
-  # plotInput <- reactive({
-  #   source_comparison <- CiteSource::compare_sources(rv$unique, comp_type = input$comp_type)
-  #   plot_source_overlap_upset(source_comparison, decreasing = c(TRUE, TRUE))
-  #
-  # })
-  #
-  # output$plotgraph2<-shiny::renderPlot({
-  #   print(plotInput())
-  # })
-  #
-  # output$downloadPlot <- shiny::downloadHandler(
-  #   filename = function() { paste("upset", '.png', sep='') },
-  #   content = function(file) {
-  #     png(file)
-  #     print(plotInput())
-  #     dev.off()
-  #   })
-  # output$reviewTab<-DT::renderDataTable({
-  #   citations<-rv$unique
-  #   citations$source<-rv$unique$cite_source
-  #   record_level_table(citations=citations,return = "DT")
-  # })
-  #
-  # #### Export tab ####
-  #
-  # # Downloadable csv
-  # output$downloadData <- downloadHandler(
-  #   filename = function() {
-  #     paste("data-", Sys.Date(), ".csv", sep="")
-  #   },
-  #
-  #   content = function(file) {
-  #     write.csv(rv$unique, file)
-  #   }
-  # )
-  #
-  # # Downloadable bibtex
-  # output$downloadData2 <- downloadHandler(
-  #   filename = function() {
-  #     paste("data-", Sys.Date(), ".bib", sep="")
-  #   },
-  #
-  #   content = function(file) {
-  #     export_bib(rv$unique, file)
-  #   }
-  # )
+  ### tab two -- upload pdf manuscripts
+  #####################################
+  ## Where we will hold the df that we will pass to tab 3
+  citation_data <- reactiveVal()
+  observeEvent(input$paper, {
 
-  ### try plotly with shiny
-  output$genderBarPlot <- renderPlotly({
-    df <- data.frame(
-      gender = c("Female", "Male", "Inconclusive"),
-      count = c(3, 5, 2)
+    #verify that the file upload is pdf kind
+    not_pdf <- tools::file_ext(input$paper$name) != "pdf"
+    if(not_pdf){
+      shinyFeedback::feedbackWarning("paper", not_pdf , "Please select a pdf")
+      return(NULL)
+    }
+    req(!not_pdf)
+
+    #Confirm to user that file has been received
+    output$pdf_confirmation <- renderPrint({
+      paste("File uploaded:", input$paper$name)
+    })
+
+
+    # extract the citations from PDf
+    uploaded_paper <- input$paper$datapath
+    citations <-parse_pdf_refs(uploaded_paper)
+    citation_data(citations)
+    output$citation_table <- renderTable(citation_data())
+
+    # test upload successful with a redownload (already tested above with extracted table output so notfully needed)
+    output$redownload <- downloadHandler(
+      filename =  function() {
+        paste(input$paper$name,".pdf", sep="")
+      },
+      content = function(file) {
+        file.copy(uploaded_paper, file)
+      },
+      contentType = "application/pdf"
     )
 
-    df$gender <- factor(df$gender, levels = df$gender)
+  })
 
-    bar <- ggplot(data=df, aes(x=gender, y=count)) +
+  ##################################
+
+
+  ### tab three -- process data and download dataset
+  ##################################################
+  #once the data from GROBID has changed
+  names_data <- reactiveVal()
+  observeEvent(citation_data(), {
+    #output$progress_message <- renderUI(HTML("<h1>First Names and Affiliations are Being Gathered</h1>"))
+    # use reactive storing the output of parse_pdf_refs in get_author_info
+    Full_author_info <- get_author_info(citation_data())
+
+    #gets index of all column names that contain affiliation
+    affiliation_columns<- grep("^affiliation", colnames(Full_author_info))
+    # Initial order for  transparency table, selecting the columns we want to show
+    col_names <- c('index', 'OG_Author', 'title', 'OG_doi', 'Date', 'given', 'family')
+    info_tbl<- Full_author_info[, c(col_names,colnames(Full_author_info[affiliation_columns]))]
+
+    names_data(info_tbl)
+    #output to see the progress after getting name and affiliation
+    output$full_authors <- renderTable(dplyr::arrange(info_tbl, index))
+
+  })
+
+  Transparency_data <- reactiveVal()
+  observeEvent(names_data(), {
+
+    # use reactive storing the output of get_author_info that gives us first name
+    all_first_names <- names_data()$given
+
+    # function to make api call and get info needed for the map over all names
+    get_prediction_and_accuracy <- function(name){
+
+      #if middle name or initial are there, use only the first name. Also get rid of any . as they break URL
+      name <- strsplit(name, " ")[[1]][[1]]
+      name <- gsub("[.]", "", name)
+
+      if(name == "No result matched" | name == "Inconclusive" | is.na(name)){
+        #nested_df <- tibble::tibble(data = list(tibble::tibble(gender_prediction = NA , accuracy = NA)))
+        #nested_df <- list(NA, NA)
+        nested_df <- tibble::tibble(gender_prediction = NA, accuracy = NA)
+      }else{
+        #Do API prediction call
+        pred <- guess_gender(name, "UK")
+
+        # troubleshoot print
+        #print("Printing Gender Guesses")
+        #print(pred)
+
+        gender <- pred$gender
+        accuracy_pred <- pred$accuracy
+        #if returns a prediction write those down, else use NA
+        if(gender == "male" | gender =="female"){
+          #nested_df <- tibble::tibble(data = list(tibble::tibble(gender_prediction = gender , accuracy = accuracy_pred)))
+          #nested_df <- list(gender, accuracy_pred)
+          nested_df <- tibble::tibble(gender_prediction = gender, accuracy = accuracy_pred)
+        }else{
+          #nested_df <- tibble::tibble(data = list(tibble::tibble(gender_prediction = NA , accuracy = NA)))
+          #nested_df <- list(NA, NA)
+          nested_df <- tibble::tibble(gender_prediction = NA, accuracy = NA)
+        }
+      }
+      #return the correct nested df
+      return(nested_df)
+    }
+
+    # dataframe of the gender prediction and accuracy per name
+    gender_columns <- purrr::map_dfr(all_first_names, get_prediction_and_accuracy)
+
+    # combine general information per name and its gender prediction
+    Trans_data <- cbind(names_data(), gender_columns)
+
+    #styling
+    Trans_data <- Trans_data %>%
+      rename(Extracted_Authors = OG_Author, Extracted_DOI = OG_doi)
+
+    Transparency_data(Trans_data)
+    output$transparency_table <- renderTable(dplyr::arrange(Trans_data, index))
+
+  })
+
+  # TODO: test edge case of clicking the button before inputting
+  # change names_data to transparency_table and put it closer to the other one
+  output$downloadData <- downloadHandler(
+    filename =  function() {
+      paste(input$paper$name,"-Transparency-Data",".csv", sep="")
+    },
+    content = function(file) {
+      write.csv(Transparency_data(), file)
+    },
+    contentType = "application/csv"
+  )
+
+
+  ###########################################################
+
+
+  ### tab four -- analysis report
+
+  # gender breakdown barplot
+  ##################
+  output$genderBarPlot <- renderPlotly({
+    df <- Transparency_data()
+
+    viz <- df %>%
+      dplyr::group_by(gender_prediction) %>%
+      dplyr::summarize(count = dplyr::n())
+    print(viz)
+
+    bar <- ggplot(data= viz, aes(x=gender_prediction, y = count)) +
       geom_bar(stat="identity")
 
     fig <- ggplotly(bar)
     fig
   })
 
+  #have to change it
+  # Downloadable diversity report pdf
+  output$downloadReport <- downloadHandler(
+    filename = function() {
+      paste("diversity-report-", Sys.Date(), ".pdf", sep="")
+    },
+
+    content = function(file) {
+      # code below is from https://shiny.rstudio.com/articles/generating-reports.html
+      tempReport <- file.path(tempdir(), "report.Rmd")
+      file.copy("diversity_report_template.Rmd", tempReport, overwrite = TRUE)
+
+      params <- list(f = f_count,
+                     m = m_count,
+                     i = i_count)
+
+      rmarkdown::render(tempReport, output_file = file,
+                        params = params,
+                        envir = new.env(parent = globalenv())
+      )
+    }
+  )
+
+  #
+  #   withProgress(message = 'Predicting Genders', value = 0, {
+  #     # Number of times we'll go through the loop
+  #     n <- nrow(names_data())
+  #
+  #     finished_df <- names_data()
+  #
+  #     finished_df <- finished_df %>% dplyr::mutate(gender = NA) %>% dplyr::mutate(accuracy = NA)
+  #
+  #     for (i in 1:n) {
+  #
+  #       name <- finished_df$given[n]
+  #       prediction <- guess_gender(name)
+  #
+  #       finished_df$gender <- prediction$gender
+  #       finished_df$accuracy <- prediction$accuracy
+  #       # Increment the progress bar, and update the detail text.
+  #       incProgress(1/n, detail = paste("Predicted ", i, "Names"))
+  #
+  #       # Pause for 0.1 seconds to simulate a long computation.
+  #       Sys.sleep(0.1)
+  #     }
+  #   })
+
+
+  ######################
 }
 
 # Create Shiny app ----

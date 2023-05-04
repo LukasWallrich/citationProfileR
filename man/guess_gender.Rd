@@ -4,19 +4,23 @@
 \alias{guess_gender}
 \title{Guess a names' gender}
 \usage{
-guess_gender(name, key = NA, cache = FALSE)
+guess_gender(name, countrycode = countrycode, key = NA, cache = FALSE)
 }
 \arguments{
 \item{name}{A name to look up.}
 
+\item{countrycode}{The country code that the user inputs.}
+
 \item{key}{An optional API key for https://gender-api.com/.}
 
-\item{cache}{(logical) local cache to avoid similar request combinations repeating}
+\item{cache}{(logical) local cache to avoid similar request combinations repeating.}
 }
 \description{
 This function uses the https://gender-api.com/ API to supply estimates of the gender for one name.
 }
 \examples{
-guess_gender("Rithika", key = "YYwMFujDM6M6GXUo2tVRgHE4J5E22ZNjj792")
+\dontrun{
+guess_gender("Rithika", "US")
+}
 }
 \keyword{internal}

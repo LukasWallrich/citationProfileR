@@ -13,6 +13,8 @@ replace_key(key)
 Users can replace the default API key with their own for the gender-api from https://gender-api.com/
 }
 \examples{
+\dontrun{
 #replace_key(key)
+}
 }
 \keyword{internal}

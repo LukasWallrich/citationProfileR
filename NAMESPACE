@@ -2,6 +2,9 @@
 
 export("%>%")
 export(get_location)
+export(first_name_check)
+export(get_author_info)
 export(guess_gender)
+export(parse_pdf_refs)
 export(replace_key)
 importFrom(magrittr,"%>%")
