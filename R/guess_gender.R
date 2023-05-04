@@ -61,13 +61,19 @@ guess_gender <- function(name, countrycode = countrycode, key = NA, cache = FALS
     #retrieve the information from api results when query status is clear
     if (httr::status_code(queryResult) == 200) {
       responseFromJSON <- jsonlite::fromJSON(httr::content(queryResult, as = "text"))
-      responseDF <- data.frame(name = responseFromJSON[["name"]],
-                               gender = responseFromJSON[["gender"]],
-                               countrycode,
-                               samples = responseFromJSON[["samples"]],
-                               accuracy = responseFromJSON[["accuracy"]],
-                               duration = responseFromJSON[["duration"]],
-                               stringsAsFactors = FALSE)
+      if(responseFromJSON[["samples"]] != 0) {
+        responseDF <- data.frame(name = responseFromJSON[["name"]],
+                                 gender = responseFromJSON[["gender"]],
+                                 countrycode,
+                                 samples = responseFromJSON[["samples"]],
+                                 accuracy = responseFromJSON[["accuracy"]],
+                                 duration = responseFromJSON[["duration"]],
+                                 stringsAsFactors = FALSE)
+      }
+      #if key ran out of requests output stop message
+      else {
+        stop("The number of available requests are exhausted")
+      }
 
     #when query isn't able to be processed we return a warning or stop message
     } else {
