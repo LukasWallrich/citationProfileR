@@ -88,7 +88,6 @@ get_location <- function(citation_data, affiliation_col_name = "affiliation.name
 
 
                   #get the country name from last_phrase_location
-                  #last_phrase_country_name <- last_phrase_location[[1]]$country
                   last_phrase_country_name <- countrycode::countrycode(last_phrase_country_code, origin = 'iso2c', destination = 'country.name')
 
                   #if country_name entry is NA, enter the value
@@ -145,7 +144,6 @@ get_location <- function(citation_data, affiliation_col_name = "affiliation.name
             }
           }else{
             #HERE put country name from countrycode_pkg_return into the column
-            #citation_data$country_name[entry] <-  countrycode_pkg_return
             if(is.na(citation_data$country_name[entry])){
               citation_data$country_name[entry] <- countrycode_pkg_return
             }else{#if country_name entry is not NA, keep the same value
