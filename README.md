@@ -137,8 +137,4 @@ Questions, bug reports, and feature requests can be submitted to this repo's [is
 
 ## Have Questions?
 
-Contact us at lmikhelashvili@smith.edu.
-
-## TODO
-
-We need to address whether a user needs Rstudio or if they can run our Shiny app and the package with just R. Also, we are unsure of what version of R one needs for our package so we don't want to make any assumptions at this point.
+Contact us at l.wallrich@bbk.ac.uk or lmikhelashvili@smith.edu.
