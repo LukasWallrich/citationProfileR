@@ -32,23 +32,30 @@ replace_key <- function(key) {
 
 guess_gender <- function(name, countrycode = countrycode, key = NA, cache = FALSE) {
 
-  if(is.na(key))
-  {
+  if(is.na(key)) {
     key = readLines("./api_keys")[1]
   }
 
-  query <- paste("name=", name, collapse = "&", "&country=", countrycode, "&key=", key, sep = "")
-
   if (cache == TRUE) {
-    #if query in cache:
-    if (!is.null(rlang::env_get(guess_gender_cache_env, name, NA))) {
-      #return res
-      return(guess_gender_cache_env[[name]])
+    #if query in cache, first retrieve information from cache
+    cache_entry <- rlang::env_get(guess_gender_cache_env, name, countrycode)
+
+    #check if cache entry is empty
+    if(!is.null(cache_entry)) {
+      #if the cache entry isn't empty, we return the result that's already there
+      return(cache_entry)
     }
-  }
+   }
 
   else {
-    #get res from api
+    #get res from api but first we have to check if we predict the gender keeping the countrycode in mind or not
+    if (!is.na(countrycode)) {
+      query <- paste("name=", name, collapse = "&", "&country=", countrycode, "&key=", key, sep = "")
+    }
+    else {
+      query <- paste("name=", name, collapse = "&", "&key=", key, sep = "")
+    }
+
     queryResult <- httr::GET("https://gender-api.com/get?", query = query, httr::config(ssl_verifypeer = FALSE))
 
     #retrieve the information from api results when query status is clear
@@ -71,15 +78,17 @@ guess_gender <- function(name, countrycode = countrycode, key = NA, cache = FALS
                     "!!!! error:",
                     httr::content(queryResult)$error,
                     sep="\n"))
-      if (httr::status_code(queryResult) == 429){
+      if (httr::status_code(queryResult) == 429) {
         stop("The number of available requests are exhausted")
       }
       responseDF <- NULL
     }
-
-    #store res in cache
-    rlang::env_cache(guess_gender_cache_env, nm = name, default = responseDF)
-
-    return(responseDF)
   }
+
+    #store res in cache only if the prediction isn't null
+  if (!is.null(responseDF)) {
+    rlang::env_cache(guess_gender_cache_env, nm = name, default = responseDF)
+  }
+
+  return(responseDF)
 }
