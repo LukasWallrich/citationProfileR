@@ -41,9 +41,13 @@ guess_gender <- function(name, countrycode = countrycode, key = NA, cache = FALS
     cache_entry <- rlang::env_get(guess_gender_cache_env, name, countrycode)
 
     #check if cache entry is empty
-    if(!is.null(cache_entry)) {
+    if(!is.null(cache_entry) & cache_entry[3] == countrycode) {
       #if the cache entry isn't empty, we return the result that's already there
       return(cache_entry)
+    }
+    #this allows us to differentiate different name-country code combinations
+    else {
+      stop("There was no prior request for this combination of name and country! Set cache = FALSE instead in function call before trying cache = TRUE.")
     }
    }
 
