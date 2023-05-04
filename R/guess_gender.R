@@ -38,7 +38,10 @@ guess_gender <- function(name, countrycode = countrycode, key = NA, cache = FALS
 
   if (cache == TRUE) {
     #if query in cache, first retrieve information from cache
-    cache_entry <- rlang::env_get(guess_gender_cache_env, name, countrycode)
+    cache_entry <- rlang::env_get(guess_gender_cache_env, paste(name, countrycode, sep = ", "))
+
+    #paste(name, countrycode, sep = ", ")
+    #name countrycode
 
     #check if cache entry is empty
     if(!is.null(cache_entry)) { #& cache_entry[3] == countrycode) {
@@ -47,7 +50,8 @@ guess_gender <- function(name, countrycode = countrycode, key = NA, cache = FALS
     }
     #this allows us to differentiate different name-country code combinations
     else {
-      stop("There was no prior request for this combination of name and country! Set cache = FALSE instead in function call before trying cache = TRUE.")
+      return(guess_gender(name, countrycode, cache = FALSE))
+      #stop("There was no prior request for this combination of name and country! Set cache = FALSE instead in function call before trying cache = TRUE.")
     }
    }
 
@@ -96,8 +100,12 @@ guess_gender <- function(name, countrycode = countrycode, key = NA, cache = FALS
   }
 
     #store res in cache only if the prediction isn't null
+  #if (!is.null(responseDF)) {
+    #rlang::env_cache(guess_gender_cache_env, nm = name, default = responseDF)
+  #}
+
   if (!is.null(responseDF)) {
-    rlang::env_cache(guess_gender_cache_env, nm = name, default = responseDF)
+    rlang::env_cache(guess_gender_cache_env, nm = paste(name, countrycode, sep = ", "), default = responseDF)
   }
 
   return(responseDF)
