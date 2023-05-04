@@ -292,9 +292,7 @@ server <- function(input, output, session) {
 
       info <- tibble::tibble(gender_count_data())
       print(paste("Info is ", info))
-      if(nrow(info) >= 2 ){
-
-
+      if (nrow(info) >= 2) {
 
         # params <- list(f = info$count[info$gender_prediction == "female" & !is.na(info$gender_prediction)],
         #                m = info$count[info$gender_prediction == "male" & !is.na(info$gender_prediction)],
@@ -302,17 +300,16 @@ server <- function(input, output, session) {
 
         params <- list(f = 10000,
                        m = 0,
-                       i = 6)
+                       i = 6)  # these are some dummy values for testing purposes
 
         rmarkdown::render(tempReport, output_file = file,
                           params = params,
                           envir = new.env(parent = globalenv())
-      )
+                          )
       }
     }
   )
 
-  #
   #   withProgress(message = 'Predicting Genders', value = 0, {
   #     # Number of times we'll go through the loop
   #     n <- nrow(names_data())
@@ -335,7 +332,6 @@ server <- function(input, output, session) {
   #       Sys.sleep(0.1)
   #     }
   #   })
-
 
   ######################
 }

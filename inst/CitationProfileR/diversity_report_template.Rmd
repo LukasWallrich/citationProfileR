@@ -5,8 +5,7 @@ params:
   f: NA
   m: NA
   i: NA
-# bibliography:
-#   inst\CitationProfileR\shiny_bib.bib
+bibliography: shiny_bib.bib
 ---
 
 There are `r toString(params$f)` female names.  
@@ -14,20 +13,20 @@ There are `r toString(params$m)` male names.
 There are `r toString(params$i)` inconclusive names.
 
 ```{r, echo=FALSE}
- df <- data.frame(
+  df <- data.frame(
        gender = c("Female", "Male", "Inconclusive"),
        count = c(params$f, params$m, params$i)
      )
+  
+  df$gender <- factor(df$gender, levels = df$gender)
 
- df$gender <- factor(df$gender, levels = df$gender)
-
-ggplot(data=df, aes(x=gender, y=count)) +
-   geom_bar(stat="identity")
+  ggplot(data=df, aes(x=gender, y=count)) +
+     geom_bar(stat="identity")
 ```
 
-<!-- The following diversity report is adapted from option 3 of *Citation Diversity Statement in BMES Journals* [@rowson2021citation]. -->
-<!-- Recent work in several fields of science has identified a bias in citation practices such that papers from women and other minority scholars are undercited relative to the number of papers in the field [@caplar2017quantitative, @dion2018gendered, @dworkin2020extent, @maliniak2013gender, @mitchell2013gendered]. Here, we sought to proactively consider choosing references that reflect the diversity of the field in thought, form of contribution, gender, race, ethnicity, and other factors. -->
+The following diversity report is adapted from option 3 of *Citation Diversity Statement in BMES Journals* [@rowson2021citation].
+Recent work in several fields of science has identified a bias in citation practices such that papers from women and other minority scholars are undercited relative to the number of papers in the field [@caplar2017quantitative, @dion2018gendered, @dworkin2020extent, @maliniak2013gender, @mitchell2013gendered]. Here, we sought to proactively consider choosing references that reflect the diversity of the field in thought, form of contribution, gender, race, ethnicity, and other factors.
 
-<!-- First, we obtained the predicted gender of all authors of each reference by using the Gender-API to predict the gender of a person based on their first name. By this measure, our references contain `r toString(params$f)` female, `r toString(params$m)` male, and `r toString(params$i)` inconclusive names that the Gender-API was not able predict a gender. This method is limited in that a) names and pronouns used to train the Gender-API may not be inclusive, and the API may perform better on names from certain cultures than other, and b) it cannot account for intersex, non-binary, or transgender people. -->
+First, we obtained the predicted gender of all authors of each reference by using the Gender-API to predict the gender of a person based on their first name. By this measure, our references contain `r toString(params$f)` female, `r toString(params$m)` male, and `r toString(params$i)` inconclusive names that the Gender-API was not able predict a gender. This method is limited in that a) names and pronouns used to train the Gender-API may not be inclusive, and the API may perform better on names from certain cultures than other, and b) it cannot account for intersex, non-binary, or transgender people.
 
-<!-- Second, we obtained locations, specifically in which country is the cited paper written, of all authors of each reference by using the OpenStreetMap (OSM) API and `countrycode` package. By this measure, the country that has largest count of authors is. This method is limited in that we have to rely on the OSM API and the `countrycode` package, and the information output by these two tool may be inaccurate. -->
+Second, we obtained locations, specifically in which country is the cited paper written, of all authors of each reference by using the OpenStreetMap (OSM) API and `countrycode` package. By this measure, the country that has largest count of authors is *some country*. This method is limited in that we have to rely on the OSM API and the `countrycode` package, and the information output by these two tool may be inaccurate.
