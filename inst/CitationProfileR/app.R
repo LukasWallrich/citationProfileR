@@ -48,8 +48,8 @@ ui <- navbarPage(
           accept = c(".pdf"),
           buttonLabel = "Browse"
         ),
-        textOutput("pdf_confirmation"),
-        tableOutput("citation_table"),
+        #textOutput("pdf_confirmation"),
+        #tableOutput("citation_table"),
         shiny::downloadButton(
           outputId = "redownload",
           label = "Download the file you just uploaded LOL"
@@ -183,6 +183,7 @@ server <- function(input, output, session) {
   })
 
   Transparency_data <- reactiveVal()
+  gender_count_data <- reactiveVal()
   observeEvent(names_data(), {
 
     # use reactive storing the output of get_author_info that gives us first name
@@ -196,12 +197,10 @@ server <- function(input, output, session) {
       name <- gsub("[.]", "", name)
 
       if(name == "No result matched" | name == "Inconclusive" | is.na(name)){
-        #nested_df <- tibble::tibble(data = list(tibble::tibble(gender_prediction = NA , accuracy = NA)))
-        #nested_df <- list(NA, NA)
         nested_df <- tibble::tibble(gender_prediction = NA, accuracy = NA)
       }else{
         #Do API prediction call
-        pred <- guess_gender(name, "UK")
+        pred <- guess_gender(name, "UK", cache = TRUE)
 
         # troubleshoot print
         #print("Printing Gender Guesses")
@@ -211,12 +210,8 @@ server <- function(input, output, session) {
         accuracy_pred <- pred$accuracy
         #if returns a prediction write those down, else use NA
         if(gender == "male" | gender =="female"){
-          #nested_df <- tibble::tibble(data = list(tibble::tibble(gender_prediction = gender , accuracy = accuracy_pred)))
-          #nested_df <- list(gender, accuracy_pred)
           nested_df <- tibble::tibble(gender_prediction = gender, accuracy = accuracy_pred)
         }else{
-          #nested_df <- tibble::tibble(data = list(tibble::tibble(gender_prediction = NA , accuracy = NA)))
-          #nested_df <- list(NA, NA)
           nested_df <- tibble::tibble(gender_prediction = NA, accuracy = NA)
         }
       }
@@ -237,6 +232,15 @@ server <- function(input, output, session) {
     Transparency_data(Trans_data)
     output$transparency_table <- renderTable(dplyr::arrange(Trans_data, index))
 
+    #gender count
+    gen_count <- Transparency_data() %>%
+      dplyr::group_by(gender_prediction) %>%
+      dplyr::summarize(count = dplyr::n())
+
+    gender_count_data(gen_count)
+
+    print("This is gender count data ")
+    print(gender_count_data())
   })
 
   # TODO: test edge case of clicking the button before inputting
@@ -286,14 +290,25 @@ server <- function(input, output, session) {
       tempReport <- file.path(tempdir(), "report.Rmd")
       file.copy("diversity_report_template.Rmd", tempReport, overwrite = TRUE)
 
-      params <- list(f = f_count,
-                     m = m_count,
-                     i = i_count)
+      info <- tibble::tibble(gender_count_data())
+      print(paste("Info is ", info))
+      if(nrow(info) >= 2 ){
 
-      rmarkdown::render(tempReport, output_file = file,
-                        params = params,
-                        envir = new.env(parent = globalenv())
+
+
+        # params <- list(f = info$count[info$gender_prediction == "female" & !is.na(info$gender_prediction)],
+        #                m = info$count[info$gender_prediction == "male" & !is.na(info$gender_prediction)],
+        #                i = info$count[is.na(info$gender_prediction)])
+
+        params <- list(f = 10000,
+                       m = 0,
+                       i = 6)
+
+        rmarkdown::render(tempReport, output_file = file,
+                          params = params,
+                          envir = new.env(parent = globalenv())
       )
+      }
     }
   )
 
